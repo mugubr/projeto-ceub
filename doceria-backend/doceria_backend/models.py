@@ -27,7 +27,7 @@ class Cliente:
         init=False, server_default=func.now()
     )
     atualizado_em: Mapped[datetime] = mapped_column(
-        init=False, onupdate=func.now()
+        init=False, onupdate=func.now(), default=func.now()
     )
     usuario: Mapped['Usuario'] = relationship(
         init=False, back_populates='cliente'
