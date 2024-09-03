@@ -4,7 +4,6 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
 from doceria_backend.settings import Settings
 from doceria_backend.models import table_registry
 
