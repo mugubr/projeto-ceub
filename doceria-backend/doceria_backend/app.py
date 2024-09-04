@@ -256,14 +256,14 @@ database_pedidos = []
 def read_pedidos(
     limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
 ):
-    pedidos = session.scalars(select(Pedido).limit(limit).offset(offset))
+    pedidos = session.scalars(select(Pedido).limit(limit).offset(offset)).all()
 
     resposta = []
 
     for pedido in pedidos:
         pedido_produtos = session.scalars(
             select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
-        )
+        ).all()
 
         valor_total = 0.0
         for pedido_produto in pedido_produtos:
@@ -290,7 +290,9 @@ def read_pedidos(
             produto = session.scalar(
                 select(Produto).where(Produto.id == pedido_produto.produto_id)
             )
-            descricao.join(f'{pedido_produto.quantidade}X {produto.nome}\n')
+            descricao += f'{str(int(pedido_produto.quantidade))}X {
+                produto.nome
+            }, '
 
         pedido_resposta = PedidoResponseSchema(
             id=pedido.id,
@@ -307,6 +309,7 @@ def read_pedidos(
             celular=celular,
             descricao=descricao,
         )
+        print(pedido_resposta)
         resposta.append(pedido_resposta)
 
     return {'pedidos': resposta}
@@ -317,8 +320,8 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
     pedido = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
 
     pedido_produtos = session.scalars(
-            select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
-        )
+        select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
+    ).all()
 
     valor_total = 0.0
     for pedido_produto in pedido_produtos:
@@ -345,7 +348,7 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
         produto = session.scalar(
             select(Produto).where(Produto.id == pedido_produto.produto_id)
         )
-        descricao.join(f'{pedido_produto.quantidade}X {produto.nome}\n')
+        descricao += f'{str(int(pedido_produto.quantidade))}X {produto.nome}, '
 
     pedido_resposta = PedidoResponseSchema(
         id=pedido.id,
