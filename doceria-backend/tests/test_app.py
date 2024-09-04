@@ -40,26 +40,26 @@ def test_read_clientes(client, cliente):
     assert response.json() == {
         'clientes': [
             {
-                'id': 1,
-                'nome': 'Cliente Teste',
-                'data_nascimento': '1990-01-01',
-                'celular': '11999999999',
-                'email': 'cliente@teste.com',
+                'id': cliente.id,
+                'nome': cliente.nome,
+                'data_nascimento': cliente.data_nascimento.isoformat(),
+                'celular': cliente.celular,
+                'email': cliente.email,
             }
         ]
     }
 
 
 def test_read_cliente(client, cliente):
-    response = client.get('/clientes/1')
+    response = client.get(f'/clientes/{cliente.id}')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'id': 1,
-        'nome': 'Cliente Teste',
-        'data_nascimento': '1990-01-01',
-        'celular': '11999999999',
-        'email': 'cliente@teste.com',
+        'id': cliente.id,
+        'nome': cliente.nome,
+        'data_nascimento': cliente.data_nascimento.isoformat(),
+        'celular': cliente.celular,
+        'email': cliente.email,
     }
 
 
@@ -70,51 +70,51 @@ def test_read_cliente_should_return_404(client):
     assert response.json() == {'detail': 'Cliente não encontrado'}
 
 
-# def test_update_cliente(client, cliente):
-#     response = client.put(
-#         '/clientes/1',
-#         json={
-#             'nome': 'Cliente Teste Atualizado',
-#             'data_nascimento': '1990-01-01',
-#             'celular': '11999999999',
-#             'email': 'cliente@atualizado.com',
-#         },
-#     )
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {
-#         'id': 1,
-#         'nome': 'Cliente Teste Atualizado',
-#         'data_nascimento': '1990-01-01',
-#         'celular': '11999999999',
-#         'email': 'cliente@atualizado.com',
-#     }
+def test_update_cliente(client, cliente):
+    response = client.put(
+        f'/clientes/{cliente.id}',
+        json={
+            'nome': 'Cliente Teste Atualizado',
+            'data_nascimento': '1990-01-01',
+            'celular': '11999999998',
+            'email': 'cliente@atualizado.com',
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': cliente.id,
+        'nome': 'Cliente Teste Atualizado',
+        'data_nascimento': '1990-01-01',
+        'celular': '11999999998',
+        'email': 'cliente@atualizado.com',
+    }
 
 
-# def test_update_cliente_should_return_404(client, cliente):
-#     response = client.put(
-#         '/clientes/2',
-#         json={
-#             'nome': 'Cliente Teste Atualizado',
-#             'data_nascimento': '1990-01-01',
-#             'celular': '11999999999',
-#             'email': 'cliente@atualizado.com',
-#         },
-#     )
+def test_update_cliente_should_return_404(client):
+    response = client.put(
+        '/clientes/2',
+        json={
+            'nome': 'Cliente Teste Atualizado',
+            'data_nascimento': '1990-01-01',
+            'celular': '11999999999',
+            'email': 'cliente@atualizado.com',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Cliente não encontrado'}
-
-
-# def test_delete_cliente(client, cliente):
-#     response = client.delete('/clientes/1')
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {'message': 'Cliente deletado'}
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Cliente não encontrado'}
 
 
-# def test_delete_cliente_should_return_404(client, cliente):
-#     response = client.delete('/clientes/2')
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Cliente não encontrado'}
+def test_delete_cliente(client, cliente):
+    response = client.delete(f'/clientes/{cliente.id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Cliente deletado'}
+
+
+def test_delete_cliente_should_return_404(client):
+    response = client.delete('/clientes/2')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Cliente não encontrado'}
 
 
 # USUARIO
@@ -165,44 +165,45 @@ def test_read_usuario_should_return_404(client):
     assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
-# def test_update_usuario(client, usuario):
-#     response = client.put(
-#         f'/usuarios/{usuario.id}',
-#         json={
-#             'usuario': 'updateduser',
-#             'senha': 'updatedpassword',
-#         },
-#     )
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {
-#         'id': usuario.id,
-#         'usuario': 'updateduser',
-#     }
+def test_update_usuario(client, usuario):
+    response = client.put(
+        f'/usuarios/{usuario.id}',
+        json={
+            'usuario': 'updateduser',
+            'senha': 'updatedpassword',
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': usuario.id,
+        'usuario': 'updateduser',
+        'cliente_id': usuario.cliente_id,
+    }
 
 
-# def test_update_usuario_should_return_404(client):
-#     response = client.put(
-#         '/usuarios/2',
-#         json={
-#             'usuario': 'updateduser',
-#             'senha': 'updatedpassword',
-#         },
-#     )
+def test_update_usuario_should_return_404(client):
+    response = client.put(
+        '/usuarios/2',
+        json={
+            'usuario': 'updateduser',
+            'senha': 'updatedpassword',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Usuário não encontrado'}
-
-
-# def test_delete_usuario(client, usuario):
-#     response = client.delete(f'/usuarios/{usuario.id}')
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {'message': 'Usuário deletado'}
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
-# def test_delete_usuario_should_return_404(client):
-#     response = client.delete('/usuarios/2')
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Usuário não encontrado'}
+def test_delete_usuario(client, usuario):
+    response = client.delete(f'/usuarios/{usuario.id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Usuário deletado'}
+
+
+def test_delete_usuario_should_return_404(client):
+    response = client.delete('/usuarios/2')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
 # PEDIDO
@@ -263,7 +264,7 @@ def test_read_pedidos(client, pedido):
 
 
 def test_read_pedido(client, pedido):
-    response = client.get('/pedidos/1')
+    response = client.get(f'/pedidos/{pedido.id}')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -289,58 +290,58 @@ def test_read_pedido_should_return_404(client):
     assert response.json() == {'detail': 'Pedido não encontrado'}
 
 
-# def test_update_pedido(client):
-#     response = client.put(
-#         '/pedidos/1',
-#         json={
-#             'data_entrega': '2023-09-01',
-#             'ocasiao': 'Casamento',
-#             'bairro': 'Jardim',
-#             'logradouro': 'Rua Secundária',
-#             'numero_complemento': '456',
-#             'ponto_referencia': 'Em frente ao parque',
-#         },
-#     )
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {
-#         'id': 1,
-#         'cliente_id': 1,
-#         'data_entrega': '2023-09-01',
-#         'ocasiao': 'Casamento',
-#         'bairro': 'Jardim',
-#         'logradouro': 'Rua Secundária',
-#         'numero_complemento': '456',
-#         'ponto_referencia': 'Em frente ao parque',
-#     }
+def test_update_pedido(client, pedido):
+    response = client.put(
+        f'/pedidos/{pedido.id}',
+        json={
+            'data_entrega': '2023-09-01',
+            'ocasiao': 'Casamento',
+            'bairro': 'Jardim',
+            'logradouro': 'Rua Secundária',
+            'numero_complemento': '456',
+            'ponto_referencia': 'Em frente ao parque',
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': pedido.id,
+        'cliente_id': pedido.cliente_id,
+        'data_entrega': '2023-09-01',
+        'ocasiao': 'Casamento',
+        'bairro': 'Jardim',
+        'logradouro': 'Rua Secundária',
+        'numero_complemento': '456',
+        'ponto_referencia': 'Em frente ao parque',
+    }
 
 
-# def test_update_pedido_should_return_404(client):
-#     response = client.put(
-#         '/pedidos/2',
-#         json={
-#             'data_entrega': '2023-09-01',
-#             'ocasiao': 'Casamento',
-#             'bairro': 'Jardim',
-#             'logradouro': 'Rua Secundária',
-#             'numero_complemento': '456',
-#             'ponto_referencia': 'Em frente ao parque',
-#         },
-#     )
+def test_update_pedido_should_return_404(client):
+    response = client.put(
+        '/pedidos/2',
+        json={
+            'data_entrega': '2023-09-01',
+            'ocasiao': 'Casamento',
+            'bairro': 'Jardim',
+            'logradouro': 'Rua Secundária',
+            'numero_complemento': '456',
+            'ponto_referencia': 'Em frente ao parque',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Pedido não encontrado'}
-
-
-# def test_delete_pedido(client):
-#     response = client.delete('/pedidos/1')
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {'message': 'Pedido deletado'}
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Pedido não encontrado'}
 
 
-# def test_delete_pedido_should_return_404(client):
-#     response = client.delete('/pedidos/2')
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Pedido não encontrado'}
+def test_delete_pedido(client, pedido):
+    response = client.delete(f'/pedidos/{pedido.id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Pedido deletado'}
+
+
+def test_delete_pedido_should_return_404(client):
+    response = client.delete('/pedidos/2')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Pedido não encontrado'}
 
 
 # PRODUTO
@@ -412,54 +413,54 @@ def test_read_produto_should_return_404(client):
     assert response.json() == {'detail': 'Produto não encontrado'}
 
 
-# def test_update_produto(client):
-#     response = client.put(
-#         '/produtos/1',
-#         json={
-#             'nome': 'Bolo de Cenoura',
-#             'preco': 30.00,
-#             'tempo_producao': 90,
-#             'vegano': True,
-#             'gluten': False,
-#             'lactose': False,
-#         },
-#     )
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {
-#         'id': 1,
-#         'nome': 'Bolo de Cenoura',
-#         'preco': 30.00,
-#         'tempo_producao': 90,
-#         'vegano': True,
-#         'gluten': False,
-#         'lactose': False,
-#     }
+def test_update_produto(client, produto):
+    response = client.put(
+        f'/produtos/{produto.id}',
+        json={
+            'nome': 'Bolo de Cenoura',
+            'preco': 30.00,
+            'tempo_producao': 90,
+            'vegano': True,
+            'gluten': False,
+            'lactose': False,
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': produto.id,
+        'nome': 'Bolo de Cenoura',
+        'preco': 30.00,
+        'tempo_producao': 90,
+        'vegano': True,
+        'gluten': False,
+        'lactose': False,
+    }
 
 
-# def test_update_produto_should_return_404(client):
-#     response = client.put(
-#         '/produtos/2',
-#         json={
-#             'nome': 'Bolo de Cenoura',
-#             'preco': 30.00,
-#             'tempo_producao': 90,
-#             'vegano': True,
-#             'gluten': False,
-#             'lactose': False,
-#         },
-#     )
+def test_update_produto_should_return_404(client):
+    response = client.put(
+        '/produtos/2',
+        json={
+            'nome': 'Bolo de Cenoura',
+            'preco': 30.00,
+            'tempo_producao': 90,
+            'vegano': True,
+            'gluten': False,
+            'lactose': False,
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Produto não encontrado'}
-
-
-# def test_delete_produto(client):
-#     response = client.delete('/produtos/1')
-#     assert response.status_code == HTTPStatus.OK
-#     assert response.json() == {'message': 'Produto deletado'}
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Produto não encontrado'}
 
 
-# def test_delete_produto_should_return_404(client):
-#     response = client.delete('/produtos/2')
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'Produto não encontrado'}
+def test_delete_produto(client, produto):
+    response = client.delete(f'/produtos/{produto.id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Produto deletado'}
+
+
+def test_delete_produto_should_return_404(client):
+    response = client.delete('/produtos/2')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Produto não encontrado'}

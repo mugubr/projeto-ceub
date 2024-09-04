@@ -34,7 +34,6 @@ from doceria_backend.schemas.produto import (
 )
 from doceria_backend.schemas.usuario import (
     UsuarioCreateSchema,
-    UsuarioDB,
     UsuarioLista,
     UsuarioPublico,
     UsuarioSchema,
@@ -141,27 +140,57 @@ def create_cliente(
 def update_cliente(
     cliente_id: int,
     cliente: ClienteSchema,
+    session: Session = Depends(get_session),
 ):
-    if cliente_id > len(database_clientes) or cliente_id < 1:
+    cliente_db = session.scalar(
+        select(Cliente).where(Cliente.id == cliente_id)
+    )
+    if not cliente_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Cliente não encontrado'
         )
 
-    cliente_atualizado = ClienteDB(id=cliente_id, **cliente.model_dump())
-    database_clientes[cliente_id - 1] = cliente_atualizado
-    return cliente_atualizado
+    cliente_erro = session.scalar(
+        select(Cliente).where(
+            (Cliente.celular == cliente.celular)
+            | (Cliente.email == cliente.email)
+        )
+    )
+
+    if cliente_erro:
+        if cliente_erro.celular == cliente.celular:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Celular já cadastrado',
+            )
+        if cliente_erro.email == cliente.email:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='E-mail já cadastrado',
+            )
+
+    cliente_db.nome = cliente.nome
+    cliente_db.data_nascimento = cliente.data_nascimento
+    cliente_db.celular = cliente.celular
+    cliente_db.email = cliente.email
+
+    session.commit()
+    session.refresh(cliente_db)
+
+    return cliente_db
 
 
 @app.delete('/clientes/{cliente_id}', response_model=dict)
-def delete_cliente(
-    cliente_id: int,
-):
-    if cliente_id < 1 or cliente_id > len(database_clientes):
+def delete_cliente(cliente_id: int, session: Session = Depends(get_session)):
+    cliente_db = session.scalar(
+        select(Cliente).where(Cliente.id == cliente_id)
+    )
+    if not cliente_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Cliente não encontrado'
         )
-
-    del database_clientes[cliente_id - 1]
+    session.delete(cliente_db)
+    session.commit()
     return {'message': 'Cliente deletado'}
 
 
@@ -229,30 +258,47 @@ def create_usuario(
 def update_usuario(
     usuario_id: int,
     usuario: UsuarioSchema,
+    session: Session = Depends(get_session),
 ):
-    if usuario_id > len(database_usuarios) or usuario_id < 1:
+    usuario_db = session.scalar(
+        select(Usuario).where(Usuario.id == usuario_id)
+    )
+    if not usuario_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
         )
 
-    cliente_id_usuario = database_usuarios[usuario_id - 1].cliente_id
-    usuario_atualizado = UsuarioDB(
-        id=usuario_id, cliente_id=cliente_id_usuario, **usuario.model_dump()
+    usuario_erro = session.scalar(
+        select(Usuario).where((Usuario.usuario == usuario.usuario))
     )
-    database_usuarios[usuario_id - 1] = usuario_atualizado
-    return usuario_atualizado
+
+    if usuario_erro:
+        if usuario_erro.usuario == usuario.usuario:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Usuário já cadastrado',
+            )
+
+    usuario_db.usuario = usuario.usuario
+    usuario_db.senha = usuario.senha
+
+    session.commit()
+    session.refresh(usuario_db)
+
+    return usuario_db
 
 
 @app.delete('/usuarios/{usuario_id}', response_model=dict)
-def delete_usuario(
-    usuario_id: int,
-):
-    if usuario_id < 1 or usuario_id > len(database_usuarios):
+def delete_usuario(usuario_id: int, session: Session = Depends(get_session)):
+    usuario_db = session.scalar(
+        select(Usuario).where(Usuario.id == usuario_id)
+    )
+    if not usuario_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
         )
-
-    del database_usuarios[usuario_id - 1]
+    session.delete(usuario_db)
+    session.commit()
     return {'message': 'Usuário deletado'}
 
 
@@ -443,32 +489,36 @@ def create_pedido(
 def update_pedido(
     pedido_id: int,
     pedido: PedidoSchema,
+    session: Session = Depends(get_session),
 ):
-    if pedido_id > len(database_pedidos) or pedido_id < 1:
+    pedido_db = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
+    if not pedido_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Pedido não encontrado'
         )
 
-    pedido_atualizado = PedidoDB(
-        id=pedido_id,
-        **pedido.model_dump(),
-        cliente_id=1,
-        criado_em=(database_pedidos[pedido_id - 1].criado_em),
-    )
-    database_pedidos[pedido_id - 1] = pedido_atualizado
-    return pedido_atualizado
+    pedido_db.data_entrega = pedido.data_entrega
+    pedido_db.ocasiao = pedido.ocasiao
+    pedido_db.bairro = pedido.bairro
+    pedido_db.logradouro = pedido.logradouro
+    pedido_db.numero_complemento = pedido.numero_complemento
+    pedido_db.ponto_referencia = pedido.ponto_referencia
+
+    session.commit()
+    session.refresh(pedido_db)
+
+    return pedido_db
 
 
 @app.delete('/pedidos/{pedido_id}', response_model=dict)
-def delete_pedido(
-    pedido_id: int,
-):
-    if pedido_id < 1 or pedido_id > len(database_pedidos):
+def delete_pedido(pedido_id: int, session: Session = Depends(get_session)):
+    pedido_db = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
+    if not pedido_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Pedido não encontrado'
         )
-
-    del database_pedidos[pedido_id - 1]
+    session.delete(pedido_db)
+    session.commit()
     return {'message': 'Pedido deletado'}
 
 
@@ -531,25 +581,38 @@ def create_produto(
 def update_produto(
     produto_id: int,
     produto: ProdutoSchema,
+    session: Session = Depends(get_session),
 ):
-    if produto_id > len(database_produtos) or produto_id < 1:
+    produto_db = session.scalar(
+        select(Produto).where(Produto.id == produto_id)
+    )
+    if not produto_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Produto não encontrado'
         )
 
-    produto_atualizado = ProdutoDB(id=produto_id, **produto.model_dump())
-    database_produtos[produto_id - 1] = produto_atualizado
-    return produto_atualizado
+    produto_db.nome = produto.nome
+    produto_db.preco = produto.preco
+    produto_db.tempo_producao = produto.tempo_producao
+    produto_db.vegano = produto.vegano
+    produto_db.gluten = produto.gluten
+    produto_db.lactose = produto.lactose
+
+    session.commit()
+    session.refresh(produto_db)
+
+    return produto_db
 
 
 @app.delete('/produtos/{produto_id}', response_model=dict)
-def delete_produto(
-    produto_id: int,
-):
-    if produto_id < 1 or produto_id > len(database_produtos):
+def delete_produto(produto_id: int, session: Session = Depends(get_session)):
+    produto_db = session.scalar(
+        select(Produto).where(Produto.id == produto_id)
+    )
+    if not produto_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Produto não encontrado'
         )
-
-    del database_produtos[produto_id - 1]
+    session.delete(produto_db)
+    session.commit()
     return {'message': 'Produto deletado'}
