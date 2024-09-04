@@ -10,6 +10,9 @@ class ProdutoSchema(BaseModel):
     lactose: bool
 
 
+class ProdutoCreateSchema(ProdutoSchema): ...
+
+
 class ProdutoDB(ProdutoSchema):
     id: int
 

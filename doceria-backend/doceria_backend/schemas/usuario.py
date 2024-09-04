@@ -6,6 +6,10 @@ class UsuarioSchema(BaseModel):
     senha: str
 
 
+class UsuarioCreateSchema(UsuarioSchema):
+    cliente_id: int
+
+
 class UsuarioDB(UsuarioSchema):
     id: int
     cliente_id: int
@@ -14,6 +18,7 @@ class UsuarioDB(UsuarioSchema):
 class UsuarioPublico(BaseModel):
     id: int
     usuario: str
+    cliente_id: int
 
 
 class UsuarioLista(BaseModel):

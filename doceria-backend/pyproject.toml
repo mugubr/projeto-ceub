@@ -47,6 +47,8 @@ test = "pytest -s -x --cov=doceria_backend -vv"
 post_test = "coverage html"
 lint = "ruff check . && ruff check . --diff"
 format = "ruff check . --fix && ruff format ."
+revision = "alembic revision --autogenerate"
+upgrade = "alembic upgrade head"
 
 [build-system]
 requires = ["poetry-core"]

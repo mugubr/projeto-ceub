@@ -10,6 +10,11 @@ class ClienteSchema(BaseModel):
     email: EmailStr
 
 
+class ClienteCreateSchema(ClienteSchema):
+    usuario: str
+    senha: str
+
+
 class ClienteDB(ClienteSchema):
     id: int
 
