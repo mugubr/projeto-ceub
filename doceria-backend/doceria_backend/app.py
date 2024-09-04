@@ -63,6 +63,10 @@ def read_clientes(
 @app.get('/clientes/{cliente_id}', response_model=ClienteDB)
 def read_cliente(cliente_id: int, session: Session = Depends(get_session)):
     cliente = session.scalar(select(Cliente).where(Cliente.id == cliente_id))
+    if not cliente:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Cliente não encontrado'
+        )
     return cliente
 
 
@@ -92,7 +96,7 @@ def create_cliente(
             )
 
     novo_cliente_db = Cliente(
-        nome=novo_cliente.celular,
+        nome=novo_cliente.nome,
         data_nascimento=novo_cliente.data_nascimento,
         celular=novo_cliente.celular,
         email=novo_cliente.email,
@@ -176,6 +180,10 @@ def read_usuarios(
 @app.get('/usuarios/{usuario_id}', response_model=UsuarioPublico)
 def read_usuario(usuario_id: int, session: Session = Depends(get_session)):
     usuario = session.scalar(select(Usuario).where(Usuario.id == usuario_id))
+    if not usuario:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
+        )
     return usuario
 
 
@@ -318,6 +326,10 @@ def read_pedidos(
 @app.get('/pedidos/{pedido_id}', response_model=PedidoResponseSchema)
 def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
     pedido = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
+    if not pedido:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Pedido não encontrado'
+        )
 
     pedido_produtos = session.scalars(
         select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
@@ -368,7 +380,11 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
     return pedido_resposta
 
 
-@app.post('/pedidos/', response_model=PedidoDB, status_code=HTTPStatus.CREATED)
+@app.post(
+    '/pedidos/',
+    response_model=PedidoDB,
+    status_code=HTTPStatus.CREATED,
+)
 def create_pedido(
     novo_pedido: PedidoCreateSchema, session: Session = Depends(get_session)
 ):
@@ -471,6 +487,10 @@ def read_produtos(
 @app.get('/produtos/{produto_id}', response_model=ProdutoDB)
 def read_produto(produto_id: int, session: Session = Depends(get_session)):
     produto = session.scalar(select(Produto).where(Produto.id == produto_id))
+    if not produto:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Produto não encontrado'
+        )
     return produto
 
 

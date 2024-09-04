@@ -22,6 +22,9 @@ class PedidoCreateSchema(PedidoSchema):
 class PedidoDB(PedidoSchema):
     id: int
     cliente_id: int
+
+
+class PedidoDBData(PedidoSchema):
     criado_em: datetime
 
 
