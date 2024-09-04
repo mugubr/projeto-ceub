@@ -245,14 +245,14 @@ def test_read_pedidos(client, pedido):
     assert response.json() == {
         'pedidos': [
             {
-                'id': 1,
-                'cliente_id': 1,
-                'data_entrega': str(datetime.now().date() + timedelta(days=4)),
-                'ocasiao': 'Aniversário',
-                'bairro': 'Centro',
-                'logradouro': 'Rua Teste',
-                'numero_complemento': '123',
-                'ponto_referencia': 'Perto da escola',
+                'id': pedido.id,
+                'cliente_id': pedido.cliente_id,
+                'data_entrega': pedido.data_entrega.isoformat(),
+                'ocasiao': pedido.ocasiao,
+                'bairro': pedido.bairro,
+                'logradouro': pedido.logradouro,
+                'numero_complemento': pedido.numero_complemento,
+                'ponto_referencia': pedido.ponto_referencia,
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
@@ -267,14 +267,14 @@ def test_read_pedido(client, pedido):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'id': 1,
-        'cliente_id': 1,
-        'data_entrega': str(datetime.now().date() + timedelta(days=4)),
-        'ocasiao': 'Aniversário',
-        'bairro': 'Centro',
-        'logradouro': 'Rua Teste',
-        'numero_complemento': '123',
-        'ponto_referencia': 'Perto da escola',
+        'id': pedido.id,
+        'cliente_id': pedido.cliente_id,
+        'data_entrega': pedido.data_entrega.isoformat(),
+        'ocasiao': pedido.ocasiao,
+        'bairro': pedido.bairro,
+        'logradouro': pedido.logradouro,
+        'numero_complemento': pedido.numero_complemento,
+        'ponto_referencia': pedido.ponto_referencia,
         'valor': 250.0,
         'status': 'Em andamento',
         'celular': '11999999999',
@@ -378,13 +378,13 @@ def test_read_produtos(client, produto):
     assert response.json() == {
         'produtos': [
             {
-                'id': 1,
-                'nome': 'Produto Teste',
-                'preco': 10.0,
-                'tempo_producao': 1,
-                'vegano': False,
-                'gluten': True,
-                'lactose': False,
+                'id': produto.id,
+                'nome': produto.nome,
+                'preco': produto.preco,
+                'tempo_producao': produto.tempo_producao,
+                'vegano': produto.vegano,
+                'gluten': produto.gluten,
+                'lactose': produto.lactose,
             }
         ]
     }
@@ -395,13 +395,13 @@ def test_read_produto(client, produto):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'id': 1,
-        'nome': 'Produto Teste',
-        'preco': 10.0,
-        'tempo_producao': 1,
-        'vegano': False,
-        'gluten': True,
-        'lactose': False,
+        'id': produto.id,
+        'nome': produto.nome,
+        'preco': produto.preco,
+        'tempo_producao': produto.tempo_producao,
+        'vegano': produto.vegano,
+        'gluten': produto.gluten,
+        'lactose': produto.lactose,
     }
 
 
