@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 
 from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy import select
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import extract, select
 from sqlalchemy.orm import Session
 
 from doceria_backend.database import get_session
@@ -23,6 +24,7 @@ from doceria_backend.schemas.pedido import (
     PedidoCreateSchema,
     PedidoDB,
     PedidoLista,
+    PedidoPorMesResponseSchema,
     PedidoResponseSchema,
     PedidoSchema,
 )
@@ -38,6 +40,7 @@ from doceria_backend.schemas.usuario import (
     UsuarioPublico,
     UsuarioSchema,
 )
+from doceria_backend.security import get_password_hash, verify_password
 
 app = FastAPI(title='API Katherine Corrales - Doceria')
 
@@ -47,10 +50,24 @@ def read_root():
     return {'message': 'Olá mundo'}
 
 
+@app.post('/token')
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    usuario = session.scalar(
+        select(Usuario).where(Usuario.usuario == form_data.username)
+    )
+
+    if not usuario or not verify_password(form_data.password, usuario.senha):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Usuário ou senha incorretos',
+        )
+    ...
+
+
 # CLIENTE
-database_clientes = []
-
-
 @app.get('/clientes/', response_model=ClienteLista)
 def read_clientes(
     limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
@@ -125,7 +142,7 @@ def create_cliente(
 
     novo_usuario = Usuario(
         usuario=novo_cliente.usuario,
-        senha=novo_cliente.senha,
+        senha=get_password_hash(novo_cliente.senha),
         cliente_id=cliente_db.id,
     )
 
@@ -195,9 +212,6 @@ def delete_cliente(cliente_id: int, session: Session = Depends(get_session)):
 
 
 # USUARIO
-database_usuarios = []
-
-
 @app.get('/usuarios/', response_model=UsuarioLista)
 def read_usuarios(
     limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
@@ -243,7 +257,7 @@ def create_usuario(
 
     novo_usuario_db = Usuario(
         usuario=novo_usuario.usuario,
-        senha=novo_usuario.senha,
+        senha=get_password_hash(novo_usuario.senha),
         cliente_id=novo_usuario.cliente_id,
     )
 
@@ -303,9 +317,6 @@ def delete_usuario(usuario_id: int, session: Session = Depends(get_session)):
 
 
 # PEDIDO
-database_pedidos = []
-
-
 @app.get('/pedidos/', response_model=PedidoLista)
 def read_pedidos(
     limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
@@ -426,6 +437,78 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
     return pedido_resposta
 
 
+@app.get('/pedidos/mes/{mes}', response_model= PedidoPorMesResponseSchema)
+def read_pedidos_by_mes(
+    ano: int,
+    mes: int,
+    session: Session = Depends(get_session),
+):
+    pedidos = session.scalars(
+        select(Pedido)
+        .where(
+            extract('year', Pedido.criado_em) == ano,
+            extract('month', Pedido.criado_em) == mes,
+        )
+        .order_by(Pedido.criado_em)
+    ).all()
+
+    if not pedidos:
+        raise HTTPException(
+            status_code=404, detail='Nenhum pedido encontrado.'
+        )
+
+    pedidos_agrupados = {}
+
+    for pedido in pedidos:
+        pedido_produtos = session.scalars(
+            select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
+        ).all()
+
+        valor_total = 0.0
+        descricao = ''
+        for pedido_produto in pedido_produtos:
+            produto = session.scalar(
+                select(Produto).where(Produto.id == pedido_produto.produto_id)
+            )
+            valor_total += produto.preco * pedido_produto.quantidade
+            descricao += f'{int(pedido_produto.quantidade)}X {produto.nome}, '
+
+        status = 'Em andamento'
+        hoje = datetime.now().date()
+        if pedido.data_entrega and pedido.data_entrega < hoje:
+            status = 'Entregue'
+
+        celular = ''
+        cliente = session.scalar(
+            select(Cliente).where(Cliente.id == pedido.cliente_id)
+        )
+        if cliente and cliente.celular:
+            celular = cliente.celular
+
+        pedido_resposta = PedidoResponseSchema(
+            id=pedido.id,
+            cliente_id=pedido.cliente_id,
+            criado_em=pedido.criado_em,
+            data_entrega=pedido.data_entrega,
+            ocasiao=pedido.ocasiao,
+            bairro=pedido.bairro,
+            logradouro=pedido.logradouro,
+            numero_complemento=pedido.numero_complemento,
+            ponto_referencia=pedido.ponto_referencia,
+            valor=valor_total,
+            status=status,
+            celular=celular,
+            descricao=descricao.rstrip(', '),
+        )
+
+        dia = pedido.criado_em.day
+        if dia not in pedidos_agrupados:
+            pedidos_agrupados[dia] = []
+        pedidos_agrupados[dia].append(pedido_resposta)
+
+    return {'ano': ano, 'mes': mes, 'pedidos': pedidos_agrupados}
+
+
 @app.post(
     '/pedidos/',
     response_model=PedidoDB,
@@ -523,9 +606,6 @@ def delete_pedido(pedido_id: int, session: Session = Depends(get_session)):
 
 
 # PRODUTO
-database_produtos = []
-
-
 @app.get('/produtos/', response_model=ProdutoLista)
 def read_produtos(
     limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
