@@ -16,6 +16,8 @@ from doceria_backend.models import (
     Usuario,
     table_registry,
 )
+from doceria_backend.security import get_password_hash
+from doceria_backend.settings import Settings
 
 
 @pytest.fixture
@@ -60,12 +62,33 @@ def cliente(session: Session):
 
 @pytest.fixture
 def usuario(session: Session, cliente: Cliente):
+    pwd = 'senha_teste'
     usuario = Usuario(
-        usuario='usuario_teste', senha='senha_teste', cliente_id=cliente.id
+        usuario='usuario_teste',
+        senha=get_password_hash(pwd),
+        cliente_id=cliente.id,
     )
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
+
+    usuario.senha_limpa = pwd
+    return usuario
+
+
+@pytest.fixture
+def admin(session: Session, cliente: Cliente):
+    pwd = 'senha_teste'
+    usuario = Usuario(
+        usuario=Settings().ADMIN,
+        senha=get_password_hash(pwd),
+        cliente_id=cliente.id,
+    )
+    session.add(usuario)
+    session.commit()
+    session.refresh(usuario)
+
+    usuario.senha_limpa = pwd
     return usuario
 
 
@@ -108,3 +131,21 @@ def pedido(session: Session, cliente: Cliente, produto: Produto):
     session.refresh(pedido_produto)
 
     return pedido
+
+
+@pytest.fixture
+def token(client, usuario):
+    response = client.post(
+        '/token',
+        data={'username': usuario.usuario, 'password': usuario.senha_limpa},
+    )
+    return response.json()['access_token']
+
+
+@pytest.fixture
+def token_admin(client, admin):
+    response = client.post(
+        '/token',
+        data={'username': admin.usuario, 'password': admin.senha_limpa},
+    )
+    return response.json()['access_token']

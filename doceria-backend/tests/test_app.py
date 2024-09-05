@@ -33,8 +33,10 @@ def test_create_cliente(client):
     }
 
 
-def test_read_clientes(client, cliente):
-    response = client.get('/clientes/')
+def test_read_clientes(client, cliente, token_admin):
+    response = client.get(
+        '/clientes/', headers={'Authorization': f'Bearer {token_admin}'}
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -50,8 +52,11 @@ def test_read_clientes(client, cliente):
     }
 
 
-def test_read_cliente(client, cliente):
-    response = client.get(f'/clientes/{cliente.id}')
+def test_read_cliente(client, cliente, token_admin):
+    response = client.get(
+        f'/clientes/{cliente.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -63,16 +68,19 @@ def test_read_cliente(client, cliente):
     }
 
 
-def test_read_cliente_should_return_404(client):
-    response = client.get('/clientes/2')
+def test_read_cliente_should_return_404(client, token_admin):
+    response = client.get(
+        '/clientes/2', headers={'Authorization': f'Bearer {token_admin}'}
+    )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Cliente não encontrado'}
 
 
-def test_update_cliente(client, cliente):
+def test_update_cliente(client, cliente, token):
     response = client.put(
         f'/clientes/{cliente.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'nome': 'Cliente Teste Atualizado',
             'data_nascimento': '1990-01-01',
@@ -90,71 +98,66 @@ def test_update_cliente(client, cliente):
     }
 
 
-def test_update_cliente_should_return_404(client):
-    response = client.put(
-        '/clientes/2',
-        json={
-            'nome': 'Cliente Teste Atualizado',
-            'data_nascimento': '1990-01-01',
-            'celular': '11999999999',
-            'email': 'cliente@atualizado.com',
-        },
+def test_delete_cliente(client, cliente, token_admin):
+    response = client.delete(
+        f'/clientes/{cliente.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
     )
-
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'Cliente não encontrado'}
-
-
-def test_delete_cliente(client, cliente):
-    response = client.delete(f'/clientes/{cliente.id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Cliente deletado'}
 
 
-def test_delete_cliente_should_return_404(client):
-    response = client.delete('/clientes/2')
+def test_delete_cliente_should_return_404(client, token_admin):
+    response = client.delete(
+        '/clientes/2', headers={'Authorization': f'Bearer {token_admin}'}
+    )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Cliente não encontrado'}
 
 
 # USUARIO
-def test_create_usuario(client, cliente):
+def test_create_usuario(client, token_admin):
     response = client.post(
         '/usuarios/',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'usuario': 'testeuser',
             'senha': 'testepassword',
-            'cliente_id': cliente.id,
+            'cliente_id': 2,
         },
     )
-
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
-        'id': 1,
+        'id': 2,
         'usuario': 'testeuser',
-        'cliente_id': 1,
+        'cliente_id': 2,
     }
 
 
 def test_read_usuarios(client, usuario):
     response = client.get('/usuarios/')
-
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'usuarios': [
-            {'id': usuario.id, 'usuario': usuario.usuario, 'cliente_id': 1}
+            {
+                'id': 1,
+                'usuario': usuario.usuario,
+                'cliente_id': usuario.cliente_id,
+            }
         ]
     }
 
 
 def test_read_usuario(client, usuario):
-    response = client.get(f'/usuarios/{usuario.id}')
+    response = client.get(
+        f'/usuarios/{usuario.id}',
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'id': usuario.id,
+        'id': 1,
         'usuario': usuario.usuario,
-        'cliente_id': 1,
+        'cliente_id': usuario.cliente_id,
     }
 
 
@@ -165,9 +168,10 @@ def test_read_usuario_should_return_404(client):
     assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
-def test_update_usuario(client, usuario):
+def test_update_usuario(client, usuario, token_admin):
     response = client.put(
         f'/usuarios/{usuario.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'usuario': 'updateduser',
             'senha': 'updatedpassword',
@@ -181,9 +185,10 @@ def test_update_usuario(client, usuario):
     }
 
 
-def test_update_usuario_should_return_404(client):
+def test_update_usuario_should_return_404(client, token_admin):
     response = client.put(
         '/usuarios/2',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'usuario': 'updateduser',
             'senha': 'updatedpassword',
@@ -194,22 +199,28 @@ def test_update_usuario_should_return_404(client):
     assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
-def test_delete_usuario(client, usuario):
-    response = client.delete(f'/usuarios/{usuario.id}')
+def test_delete_usuario(client, usuario, token_admin):
+    response = client.delete(
+        f'/usuarios/{usuario.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Usuário deletado'}
 
 
-def test_delete_usuario_should_return_404(client):
-    response = client.delete('/usuarios/2')
+def test_delete_usuario_should_return_404(client, token_admin):
+    response = client.delete(
+        '/usuarios/2', headers={'Authorization': f'Bearer {token_admin}'}
+    )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Usuário não encontrado'}
 
 
 # PEDIDO
-def test_create_pedido(client, cliente, produto):
+def test_create_pedido(client, cliente, produto, token):
     response = client.post(
         '/pedidos/',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'data_entrega': (
                 str((datetime.now() + timedelta(days=4)).date().isoformat())
@@ -239,8 +250,10 @@ def test_create_pedido(client, cliente, produto):
     }
 
 
-def test_read_pedidos(client, pedido):
-    response = client.get('/pedidos/')
+def test_read_pedidos(client, pedido, token_admin):
+    response = client.get(
+        '/pedidos/', headers={'Authorization': f'Bearer {token_admin}'}
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -263,8 +276,11 @@ def test_read_pedidos(client, pedido):
     }
 
 
-def test_read_pedidos_by_cliente(client, cliente, pedido):
-    response = client.get(f'/pedidos/cliente/{cliente.id}')
+def test_read_pedidos_by_cliente(client, cliente, pedido, token):
+    response = client.get(
+        f'/pedidos/cliente/{cliente.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -287,17 +303,25 @@ def test_read_pedidos_by_cliente(client, cliente, pedido):
     }
 
 
-def test_read_pedidos_by_cliente_should_return_empty_list(client, cliente):
-    response = client.get(f'/pedidos/cliente/{cliente.id}')
+def test_read_pedidos_by_cliente_should_return_empty_list(
+    client, cliente, token
+):
+    response = client.get(
+        f'/pedidos/cliente/{cliente.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'pedidos': []}
 
 
-def test_read_pedidos_mes(client, pedido, produto):
+def test_read_pedidos_mes(client, pedido, produto, token_admin):
     ano_atual = datetime.now().year
     mes_atual = datetime.now().month
-    response = client.get(f'/pedidos/mes/{mes_atual}?ano={ano_atual}')
+    response = client.get(
+        f'/pedidos/mes/{mes_atual}?ano={ano_atual}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     data = response.json()
@@ -328,18 +352,24 @@ def test_read_pedidos_mes(client, pedido, produto):
     )
 
 
-def test_read_pedidos_by_mes_should_return_404(client):
+def test_read_pedidos_by_mes_should_return_404(client, token_admin):
     ano_atual = datetime.now().year
     mes_vazio = (datetime.now().month + 1) % 12 or 12
 
-    response = client.get(f'/pedidos/mes/{mes_vazio}?ano={ano_atual}')
+    response = client.get(
+        f'/pedidos/mes/{mes_vazio}?ano={ano_atual}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Nenhum pedido encontrado'}
 
 
-def test_read_pedido(client, pedido):
-    response = client.get(f'/pedidos/{pedido.id}')
+def test_read_pedido(client, pedido, token_admin):
+    response = client.get(
+        f'/pedidos/{pedido.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -358,16 +388,19 @@ def test_read_pedido(client, pedido):
     }
 
 
-def test_read_pedido_should_return_404(client):
-    response = client.get('/pedidos/2')
+def test_read_pedido_should_return_404(client, token_admin):
+    response = client.get(
+        '/pedidos/2', headers={'Authorization': f'Bearer {token_admin}'}
+    )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Pedido não encontrado'}
 
 
-def test_update_pedido(client, pedido):
+def test_update_pedido(client, pedido, token):
     response = client.put(
         f'/pedidos/{pedido.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'data_entrega': '2023-09-01',
             'ocasiao': 'Casamento',
@@ -390,9 +423,10 @@ def test_update_pedido(client, pedido):
     }
 
 
-def test_update_pedido_should_return_404(client):
+def test_update_pedido_should_return_404(client, token):
     response = client.put(
         '/pedidos/2',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'data_entrega': '2023-09-01',
             'ocasiao': 'Casamento',
@@ -407,14 +441,20 @@ def test_update_pedido_should_return_404(client):
     assert response.json() == {'detail': 'Pedido não encontrado'}
 
 
-def test_delete_pedido(client, pedido):
-    response = client.delete(f'/pedidos/{pedido.id}')
+def test_delete_pedido(client, pedido, token):
+    response = client.delete(
+        f'/pedidos/{pedido.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Pedido deletado'}
 
 
-def test_delete_pedido_should_return_404(client):
-    response = client.delete('/pedidos/2')
+def test_delete_pedido_should_return_404(client, token):
+    response = client.delete(
+        '/pedidos/2',
+        headers={'Authorization': f'Bearer {token}'},
+    )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Pedido não encontrado'}
 
@@ -422,9 +462,10 @@ def test_delete_pedido_should_return_404(client):
 # PRODUTO
 
 
-def test_create_produto(client):
+def test_create_produto(client, token_admin):
     response = client.post(
         '/produtos/',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'nome': 'Bolo de Chocolate',
             'preco': 35.50,
@@ -447,8 +488,11 @@ def test_create_produto(client):
     }
 
 
-def test_read_produtos(client, produto):
-    response = client.get('/produtos/')
+def test_read_produtos(client, produto, token):
+    response = client.get(
+        '/produtos/',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -466,8 +510,11 @@ def test_read_produtos(client, produto):
     }
 
 
-def test_read_produto(client, produto):
-    response = client.get('/produtos/1')
+def test_read_produto(client, produto, token):
+    response = client.get(
+        '/produtos/1',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -481,16 +528,19 @@ def test_read_produto(client, produto):
     }
 
 
-def test_read_produto_should_return_404(client):
-    response = client.get('/produtos/2')
+def test_read_produto_should_return_404(client, token):
+    response = client.get(
+        '/produtos/2', headers={'Authorization': f'Bearer {token}'}
+    )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Produto não encontrado'}
 
 
-def test_update_produto(client, produto):
+def test_update_produto(client, produto, token_admin):
     response = client.put(
         f'/produtos/{produto.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'nome': 'Bolo de Cenoura',
             'preco': 30.00,
@@ -512,9 +562,10 @@ def test_update_produto(client, produto):
     }
 
 
-def test_update_produto_should_return_404(client):
+def test_update_produto_should_return_404(client, token_admin):
     response = client.put(
         '/produtos/2',
+        headers={'Authorization': f'Bearer {token_admin}'},
         json={
             'nome': 'Bolo de Cenoura',
             'preco': 30.00,
@@ -529,13 +580,46 @@ def test_update_produto_should_return_404(client):
     assert response.json() == {'detail': 'Produto não encontrado'}
 
 
-def test_delete_produto(client, produto):
-    response = client.delete(f'/produtos/{produto.id}')
+def test_delete_produto(client, produto, token_admin):
+    response = client.delete(
+        f'/produtos/{produto.id}',
+        headers={'Authorization': f'Bearer {token_admin}'},
+    )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Produto deletado'}
 
 
-def test_delete_produto_should_return_404(client):
-    response = client.delete('/produtos/2')
+def test_delete_produto_should_return_404(client, token_admin):
+    response = client.delete(
+        '/produtos/2', headers={'Authorization': f'Bearer {token_admin}'}
+    )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'Produto não encontrado'}
+
+
+def test_get_token(client, usuario):
+    response = client.post(
+        '/token',
+        data={
+            'username': usuario.usuario,
+            'password': usuario.senha_limpa,
+        },
+    )
+    token = response.json()
+
+    assert response.status_code == HTTPStatus.OK
+    assert token['token_type'] == 'Bearer'
+    assert token['access_token']
+
+
+def test_get_token_should_return_400(client, usuario):
+    response = client.post(
+        '/token',
+        data={
+            'username': usuario.usuario,
+            'password': usuario.senha_limpa + 'teste',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Usuário ou senha incorretos'}

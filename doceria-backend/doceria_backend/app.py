@@ -40,9 +40,18 @@ from doceria_backend.schemas.usuario import (
     UsuarioPublico,
     UsuarioSchema,
 )
-from doceria_backend.security import get_password_hash, verify_password
+from doceria_backend.security import (
+    create_access_token,
+    get_admin,
+    get_current_user,
+    get_password_hash,
+    verify_password,
+)
+from doceria_backend.settings import Settings
 
 app = FastAPI(title='API Katherine Corrales - Doceria')
+
+ADMIN = Settings().ADMIN
 
 
 @app.get('/', status_code=HTTPStatus.OK)
@@ -64,20 +73,30 @@ def login_for_access_token(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Usuário ou senha incorretos',
         )
-    ...
+
+    access_token = create_access_token(data={'sub': usuario.usuario})
+
+    return {'access_token': access_token, 'token_type': 'Bearer'}
 
 
 # CLIENTE
 @app.get('/clientes/', response_model=ClienteLista)
 def read_clientes(
-    limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
 ):
     clientes = session.scalars(select(Cliente).limit(limit).offset(offset))
     return {'clientes': clientes}
 
 
 @app.get('/clientes/{cliente_id}', response_model=ClienteDB)
-def read_cliente(cliente_id: int, session: Session = Depends(get_session)):
+def read_cliente(
+    cliente_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
+):
     cliente = session.scalar(select(Cliente).where(Cliente.id == cliente_id))
     if not cliente:
         raise HTTPException(
@@ -98,6 +117,17 @@ def create_cliente(
             | (Cliente.email == novo_cliente.email)
         )
     )
+
+    usuario_db = session.scalar(
+        select(Usuario).where((Usuario.usuario == novo_cliente.usuario))
+    )
+
+    if usuario_db:
+        if usuario_db.usuario == novo_cliente.usuario:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Usuário já cadastrado',
+            )
 
     if cliente:
         if cliente.celular == novo_cliente.celular:
@@ -129,17 +159,6 @@ def create_cliente(
         )
     )
 
-    usuario_db = session.scalar(
-        select(Usuario).where((Usuario.usuario == novo_cliente.usuario))
-    )
-
-    if usuario_db:
-        if usuario_db.usuario == novo_cliente.usuario:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail='Usuário já cadastrado',
-            )
-
     novo_usuario = Usuario(
         usuario=novo_cliente.usuario,
         senha=get_password_hash(novo_cliente.senha),
@@ -158,7 +177,13 @@ def update_cliente(
     cliente_id: int,
     cliente: ClienteSchema,
     session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
+    if current_user.cliente_id != cliente_id:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
+        )
+
     cliente_db = session.scalar(
         select(Cliente).where(Cliente.id == cliente_id)
     )
@@ -198,7 +223,11 @@ def update_cliente(
 
 
 @app.delete('/clientes/{cliente_id}', response_model=dict)
-def delete_cliente(cliente_id: int, session: Session = Depends(get_session)):
+def delete_cliente(
+    cliente_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
+):
     cliente_db = session.scalar(
         select(Cliente).where(Cliente.id == cliente_id)
     )
@@ -214,14 +243,19 @@ def delete_cliente(cliente_id: int, session: Session = Depends(get_session)):
 # USUARIO
 @app.get('/usuarios/', response_model=UsuarioLista)
 def read_usuarios(
-    limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = Depends(get_session),
 ):
     usuarios = session.scalars(select(Usuario).limit(limit).offset(offset))
     return {'usuarios': usuarios}
 
 
 @app.get('/usuarios/{usuario_id}', response_model=UsuarioPublico)
-def read_usuario(usuario_id: int, session: Session = Depends(get_session)):
+def read_usuario(
+    usuario_id: int,
+    session: Session = Depends(get_session),
+):
     usuario = session.scalar(select(Usuario).where(Usuario.id == usuario_id))
     if not usuario:
         raise HTTPException(
@@ -234,7 +268,8 @@ def read_usuario(usuario_id: int, session: Session = Depends(get_session)):
     '/usuarios/', response_model=UsuarioPublico, status_code=HTTPStatus.CREATED
 )
 def create_usuario(
-    novo_usuario: UsuarioCreateSchema, session: Session = Depends(get_session)
+    novo_usuario: UsuarioCreateSchema,
+    session: Session = Depends(get_session),
 ):
     usuario = session.scalar(
         select(Usuario).where(
@@ -273,6 +308,7 @@ def update_usuario(
     usuario_id: int,
     usuario: UsuarioSchema,
     session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
     usuario_db = session.scalar(
         select(Usuario).where(Usuario.id == usuario_id)
@@ -303,7 +339,11 @@ def update_usuario(
 
 
 @app.delete('/usuarios/{usuario_id}', response_model=dict)
-def delete_usuario(usuario_id: int, session: Session = Depends(get_session)):
+def delete_usuario(
+    usuario_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
     usuario_db = session.scalar(
         select(Usuario).where(Usuario.id == usuario_id)
     )
@@ -319,7 +359,10 @@ def delete_usuario(usuario_id: int, session: Session = Depends(get_session)):
 # PEDIDO
 @app.get('/pedidos/', response_model=PedidoLista)
 def read_pedidos(
-    limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(select(Pedido).limit(limit).offset(offset)).all()
 
@@ -381,8 +424,11 @@ def read_pedidos(
 
 @app.get('/pedidos/cliente/{cliente_id}', response_model=PedidoLista)
 def read_pedidos_by_cliente(
-    cliente_id: int, session: Session = Depends(get_session)
+    cliente_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
+    cliente_id = current_user.cliente_id
     pedidos = session.scalars(
         select(Pedido).where(Pedido.cliente_id == cliente_id)
     ).all()
@@ -448,6 +494,7 @@ def read_pedidos_by_mes(
     ano: int,
     mes: int,
     session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(
         select(Pedido)
@@ -514,7 +561,11 @@ def read_pedidos_by_mes(
 
 
 @app.get('/pedidos/{pedido_id}', response_model=PedidoResponseSchema)
-def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
+def read_pedido(
+    pedido_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
+):
     pedido = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
     if not pedido:
         raise HTTPException(
@@ -576,8 +627,14 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
     status_code=HTTPStatus.CREATED,
 )
 def create_pedido(
-    novo_pedido: PedidoCreateSchema, session: Session = Depends(get_session)
+    novo_pedido: PedidoCreateSchema,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
+    if current_user.cliente_id != novo_pedido.cliente_id:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
+        )
     hoje = datetime.now().date()
     uma_semana = hoje + timedelta(days=3)
 
@@ -634,11 +691,17 @@ def update_pedido(
     pedido_id: int,
     pedido: PedidoSchema,
     session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
     pedido_db = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
     if not pedido_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Pedido não encontrado'
+        )
+
+    if current_user.cliente_id != pedido_db.cliente_id:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
         )
 
     pedido_db.data_entrega = pedido.data_entrega
@@ -655,11 +718,19 @@ def update_pedido(
 
 
 @app.delete('/pedidos/{pedido_id}', response_model=dict)
-def delete_pedido(pedido_id: int, session: Session = Depends(get_session)):
+def delete_pedido(
+    pedido_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
     pedido_db = session.scalar(select(Pedido).where(Pedido.id == pedido_id))
     if not pedido_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Pedido não encontrado'
+        )
+    if current_user.cliente_id != pedido_db.cliente_id:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
         )
     session.delete(pedido_db)
     session.commit()
@@ -669,14 +740,21 @@ def delete_pedido(pedido_id: int, session: Session = Depends(get_session)):
 # PRODUTO
 @app.get('/produtos/', response_model=ProdutoLista)
 def read_produtos(
-    limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
+    limit: int = 10,
+    offset: int = 0,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
     produtos = session.scalars(select(Produto).limit(limit).offset(offset))
     return {'produtos': produtos}
 
 
 @app.get('/produtos/{produto_id}', response_model=ProdutoDB)
-def read_produto(produto_id: int, session: Session = Depends(get_session)):
+def read_produto(
+    produto_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
     produto = session.scalar(select(Produto).where(Produto.id == produto_id))
     if not produto:
         raise HTTPException(
@@ -689,7 +767,9 @@ def read_produto(produto_id: int, session: Session = Depends(get_session)):
     '/produtos/', response_model=ProdutoDB, status_code=HTTPStatus.CREATED
 )
 def create_produto(
-    novo_produto: ProdutoCreateSchema, session: Session = Depends(get_session)
+    novo_produto: ProdutoCreateSchema,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
 ):
     produto = session.scalar(
         select(Produto).where((Produto.nome == novo_produto.nome))
@@ -723,6 +803,7 @@ def update_produto(
     produto_id: int,
     produto: ProdutoSchema,
     session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
 ):
     produto_db = session.scalar(
         select(Produto).where(Produto.id == produto_id)
@@ -746,7 +827,11 @@ def update_produto(
 
 
 @app.delete('/produtos/{produto_id}', response_model=dict)
-def delete_produto(produto_id: int, session: Session = Depends(get_session)):
+def delete_produto(
+    produto_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_admin),
+):
     produto_db = session.scalar(
         select(Produto).where(Produto.id == produto_id)
     )
