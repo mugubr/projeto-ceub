@@ -1,0 +1,39 @@
+services:
+  doceria_database:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_DB: app_db
+      POSTGRES_PASSWORD: app_password
+    ports:
+      - "5432:5432"
+
+  doceria_backend:
+    image: doceria_backend
+    build:
+      context: .
+      dockerfile: ./doceria-backend/Dockerfile
+    container_name: doceria_backend
+    entrypoint: ./entrypoint.sh
+    ports:
+      - "8000:8000"
+    depends_on:
+      - doceria_database
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@doceria_database:5432/app_db
+
+  doceria_frontend:
+    image: doceria_frontend
+    build:
+      context: .
+      dockerfile: ./doceria-frontend/Dockerfile
+    container_name: doceria_frontend
+    ports:
+      - "3000:80"
+    stdin_open: true
+    tty: true
+
+volumes:
+  pgdata:
