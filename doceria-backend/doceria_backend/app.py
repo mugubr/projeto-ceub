@@ -372,12 +372,145 @@ def read_pedidos(
             valor=valor_total,
             status=status,
             celular=celular,
-            descricao=descricao,
+            descricao=descricao.rstrip(', '),
         )
-        print(pedido_resposta)
         resposta.append(pedido_resposta)
 
     return {'pedidos': resposta}
+
+
+@app.get('/pedidos/cliente/{cliente_id}', response_model=PedidoLista)
+def read_pedidos_by_cliente(
+    cliente_id: int, session: Session = Depends(get_session)
+):
+    pedidos = session.scalars(
+        select(Pedido).where(Pedido.cliente_id == cliente_id)
+    ).all()
+
+    resposta = []
+
+    for pedido in pedidos:
+        pedido_produtos = session.scalars(
+            select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
+        ).all()
+
+        valor_total = 0.0
+        for pedido_produto in pedido_produtos:
+            produto = session.scalar(
+                select(Produto).where(Produto.id == pedido_produto.produto_id)
+            )
+
+            valor_total += produto.preco * pedido_produto.quantidade
+
+        status = 'Em andamento'
+        hoje = datetime.now().date()
+        if pedido.data_entrega < hoje:
+            status = 'Entregue'
+
+        celular = ''
+        cliente = session.scalar(
+            select(Cliente).where(Cliente.id == pedido.cliente_id)
+        )
+        if cliente.celular:
+            celular = cliente.celular
+
+        descricao = ''
+        for pedido_produto in pedido_produtos:
+            produto = session.scalar(
+                select(Produto).where(Produto.id == pedido_produto.produto_id)
+            )
+            descricao += f'{str(int(pedido_produto.quantidade))}X {
+                produto.nome
+            }, '
+
+        pedido_resposta = PedidoResponseSchema(
+            id=pedido.id,
+            cliente_id=pedido.cliente_id,
+            criado_em=pedido.criado_em,
+            data_entrega=pedido.data_entrega,
+            ocasiao=pedido.ocasiao,
+            bairro=pedido.bairro,
+            logradouro=pedido.logradouro,
+            numero_complemento=pedido.numero_complemento,
+            ponto_referencia=pedido.ponto_referencia,
+            valor=valor_total,
+            status=status,
+            celular=celular,
+            descricao=descricao.rstrip(', '),
+        )
+        resposta.append(pedido_resposta)
+
+    return {'pedidos': resposta}
+
+
+@app.get('/pedidos/mes/{mes}', response_model=PedidoPorMesResponseSchema)
+def read_pedidos_by_mes(
+    ano: int,
+    mes: int,
+    session: Session = Depends(get_session),
+):
+    pedidos = session.scalars(
+        select(Pedido)
+        .where(
+            extract('year', Pedido.criado_em) == ano,
+            extract('month', Pedido.criado_em) == mes,
+        )
+        .order_by(Pedido.criado_em)
+    ).all()
+
+    if not pedidos:
+        raise HTTPException(status_code=404, detail='Nenhum pedido encontrado')
+
+    pedidos_agrupados = {}
+
+    for pedido in pedidos:
+        pedido_produtos = session.scalars(
+            select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
+        ).all()
+
+        valor_total = 0.0
+        descricao = ''
+        for pedido_produto in pedido_produtos:
+            produto = session.scalar(
+                select(Produto).where(Produto.id == pedido_produto.produto_id)
+            )
+            valor_total += produto.preco * pedido_produto.quantidade
+            descricao += f'{int(pedido_produto.quantidade)}X {produto.nome}, '
+
+        status = 'Em andamento'
+        hoje = datetime.now().date()
+        if pedido.data_entrega and pedido.data_entrega < hoje:
+            status = 'Entregue'
+
+        celular = ''
+        cliente = session.scalar(
+            select(Cliente).where(Cliente.id == pedido.cliente_id)
+        )
+        if cliente and cliente.celular:
+            celular = cliente.celular
+
+        pedido_resposta = PedidoResponseSchema(
+            id=pedido.id,
+            cliente_id=pedido.cliente_id,
+            criado_em=pedido.criado_em,
+            data_entrega=pedido.data_entrega,
+            ocasiao=pedido.ocasiao,
+            bairro=pedido.bairro,
+            logradouro=pedido.logradouro,
+            numero_complemento=pedido.numero_complemento,
+            ponto_referencia=pedido.ponto_referencia,
+            valor=valor_total,
+            status=status,
+            celular=celular,
+            descricao=descricao.rstrip(', '),
+        )
+
+        dia = pedido.criado_em.day
+        if dia not in pedidos_agrupados:
+            pedidos_agrupados[dia] = []
+        pedidos_agrupados[dia].append(pedido_resposta)
+
+    return {'ano': ano, 'mes': mes, 'pedidos': pedidos_agrupados}
 
 
 @app.get('/pedidos/{pedido_id}', response_model=PedidoResponseSchema)
@@ -432,81 +565,9 @@ def read_pedido(pedido_id: int, session: Session = Depends(get_session)):
         valor=valor_total,
         status=status,
         celular=celular,
-        descricao=descricao,
+        descricao=descricao.rstrip(', '),
     )
     return pedido_resposta
-
-
-@app.get('/pedidos/mes/{mes}', response_model= PedidoPorMesResponseSchema)
-def read_pedidos_by_mes(
-    ano: int,
-    mes: int,
-    session: Session = Depends(get_session),
-):
-    pedidos = session.scalars(
-        select(Pedido)
-        .where(
-            extract('year', Pedido.criado_em) == ano,
-            extract('month', Pedido.criado_em) == mes,
-        )
-        .order_by(Pedido.criado_em)
-    ).all()
-
-    if not pedidos:
-        raise HTTPException(
-            status_code=404, detail='Nenhum pedido encontrado.'
-        )
-
-    pedidos_agrupados = {}
-
-    for pedido in pedidos:
-        pedido_produtos = session.scalars(
-            select(PedidoProduto).where(PedidoProduto.pedido_id == pedido.id)
-        ).all()
-
-        valor_total = 0.0
-        descricao = ''
-        for pedido_produto in pedido_produtos:
-            produto = session.scalar(
-                select(Produto).where(Produto.id == pedido_produto.produto_id)
-            )
-            valor_total += produto.preco * pedido_produto.quantidade
-            descricao += f'{int(pedido_produto.quantidade)}X {produto.nome}, '
-
-        status = 'Em andamento'
-        hoje = datetime.now().date()
-        if pedido.data_entrega and pedido.data_entrega < hoje:
-            status = 'Entregue'
-
-        celular = ''
-        cliente = session.scalar(
-            select(Cliente).where(Cliente.id == pedido.cliente_id)
-        )
-        if cliente and cliente.celular:
-            celular = cliente.celular
-
-        pedido_resposta = PedidoResponseSchema(
-            id=pedido.id,
-            cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
-            data_entrega=pedido.data_entrega,
-            ocasiao=pedido.ocasiao,
-            bairro=pedido.bairro,
-            logradouro=pedido.logradouro,
-            numero_complemento=pedido.numero_complemento,
-            ponto_referencia=pedido.ponto_referencia,
-            valor=valor_total,
-            status=status,
-            celular=celular,
-            descricao=descricao.rstrip(', '),
-        )
-
-        dia = pedido.criado_em.day
-        if dia not in pedidos_agrupados:
-            pedidos_agrupados[dia] = []
-        pedidos_agrupados[dia].append(pedido_resposta)
-
-    return {'ano': ano, 'mes': mes, 'pedidos': pedidos_agrupados}
 
 
 @app.post(

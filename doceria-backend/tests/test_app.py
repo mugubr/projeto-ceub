@@ -257,10 +257,85 @@ def test_read_pedidos(client, pedido):
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
-                'descricao': '25X Produto Teste, ',
+                'descricao': '25X Produto Teste',
             }
         ]
     }
+
+
+def test_read_pedidos_by_cliente(client, cliente, pedido):
+    response = client.get(f'/pedidos/cliente/{cliente.id}')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'pedidos': [
+            {
+                'id': pedido.id,
+                'cliente_id': cliente.id,
+                'data_entrega': pedido.data_entrega.isoformat(),
+                'ocasiao': pedido.ocasiao,
+                'bairro': pedido.bairro,
+                'logradouro': pedido.logradouro,
+                'numero_complemento': pedido.numero_complemento,
+                'ponto_referencia': pedido.ponto_referencia,
+                'valor': 250.0,
+                'status': 'Em andamento',
+                'celular': '11999999999',
+                'descricao': '25X Produto Teste',
+            }
+        ]
+    }
+
+
+def test_read_pedidos_by_cliente_should_return_empty_list(client, cliente):
+    response = client.get(f'/pedidos/cliente/{cliente.id}')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'pedidos': []}
+
+
+def test_read_pedidos_mes(client, pedido, produto):
+    ano_atual = datetime.now().year
+    mes_atual = datetime.now().month
+    response = client.get(f'/pedidos/mes/{mes_atual}?ano={ano_atual}')
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.json()
+
+    assert data['ano'] == ano_atual
+    assert data['mes'] == mes_atual
+    assert len(data['pedidos']) > 0
+
+    dia_criado = pedido.criado_em.day
+    assert str(dia_criado) in data['pedidos']
+    assert len(data['pedidos'][str(dia_criado)]) == 1
+
+    assert data['pedidos'][str(dia_criado)][0]['ocasiao'] == pedido.ocasiao
+    assert data['pedidos'][str(dia_criado)][0]['bairro'] == pedido.bairro
+    assert data['pedidos'][str(dia_criado)][0]['logradouro'] == (
+        pedido.logradouro
+    )
+    assert data['pedidos'][str(dia_criado)][0]['numero_complemento'] == (
+        pedido.numero_complemento
+    )
+    assert data['pedidos'][str(dia_criado)][0]['ponto_referencia'] == (
+        pedido.ponto_referencia
+    )
+    assert data['pedidos'][str(dia_criado)][0]['valor'] == (produto.preco * 25)
+    assert data['pedidos'][str(dia_criado)][0]['status'] == 'Em andamento'
+    assert data['pedidos'][str(dia_criado)][0]['descricao'] == (
+        f'25X {produto.nome}'
+    )
+
+
+def test_read_pedidos_by_mes_should_return_404(client):
+    ano_atual = datetime.now().year
+    mes_vazio = (datetime.now().month + 1) % 12 or 12
+
+    response = client.get(f'/pedidos/mes/{mes_vazio}?ano={ano_atual}')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Nenhum pedido encontrado'}
 
 
 def test_read_pedido(client, pedido):
@@ -279,7 +354,7 @@ def test_read_pedido(client, pedido):
         'valor': 250.0,
         'status': 'Em andamento',
         'celular': '11999999999',
-        'descricao': '25X Produto Teste, ',
+        'descricao': '25X Produto Teste',
     }
 
 

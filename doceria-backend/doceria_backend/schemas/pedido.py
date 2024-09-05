@@ -34,10 +34,12 @@ class PedidoResponseSchema(PedidoDB):
     celular: str
     descricao: str
 
+
 class PedidoPorMesResponseSchema(BaseModel):
     ano: int
     mes: int
     pedidos: dict[int, list[PedidoResponseSchema]]
+
 
 class PedidoLista(BaseModel):
     pedidos: list[PedidoResponseSchema]
