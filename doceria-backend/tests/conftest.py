@@ -10,6 +10,7 @@ from doceria_backend.app import app
 from doceria_backend.database import get_session
 from doceria_backend.models import (
     Cliente,
+    Mensagem,
     Pedido,
     PedidoProduto,
     Produto,
@@ -136,7 +137,7 @@ def pedido(session: Session, cliente: Cliente, produto: Produto):
 @pytest.fixture
 def token(client, usuario):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': usuario.usuario, 'password': usuario.senha_limpa},
     )
     return response.json()['access_token']
@@ -145,7 +146,19 @@ def token(client, usuario):
 @pytest.fixture
 def token_admin(client, admin):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': admin.usuario, 'password': admin.senha_limpa},
     )
     return response.json()['access_token']
+
+
+@pytest.fixture
+def mensagem(session: Session):
+    mensagem = Mensagem(
+        mensagem='mensagem teste',
+    )
+    session.add(mensagem)
+    session.commit()
+    session.refresh(mensagem)
+
+    return mensagem

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from doceria_backend.database import get_session
 from doceria_backend.models import Usuario
-from doceria_backend.schemas.token import TokenData
+from doceria_backend.schemas.auth import TokenData
 from doceria_backend.settings import Settings
 
 pwd_context = PasswordHash.recommended()
@@ -44,7 +44,7 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 
 def get_current_user(
