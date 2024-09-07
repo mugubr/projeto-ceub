@@ -56,7 +56,7 @@ def envia_mensagem_whatsapp(
     session: Session = Depends(get_session),
     current_user=Depends(get_admin),
 ):
-    numero_formatado = "+55" + numero
+    numero_formatado = '+55' + numero
     mensagem = session.scalar(
         select(Mensagem).where(Mensagem.id == mensagem_id)
     )

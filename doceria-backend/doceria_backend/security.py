@@ -16,9 +16,9 @@ from doceria_backend.settings import Settings
 
 pwd_context = PasswordHash.recommended()
 
-SECRET_KEY = 'chave'
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = Settings().SECRET_KEY
+ALGORITHM = Settings().ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = Settings().ACCESS_TOKEN_EXPIRE_MINUTES
 ADMIN = Settings().ADMIN
 
 
