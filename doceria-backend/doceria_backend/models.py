@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column, registry
+from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 table_registry = registry()
 
@@ -30,6 +30,15 @@ class Cliente:
         init=False, onupdate=func.now(), default=func.now()
     )
 
+    usuario: Mapped['Usuario'] = relationship(
+        init=False,
+        cascade='all, delete-orphan',
+        uselist=False,
+    )
+    pedidos: Mapped[list['Pedido'] | None] = relationship(
+        init=False, cascade='all, delete-orphan'
+    )
+
 
 @table_registry.mapped_as_dataclass
 class Usuario:
@@ -40,6 +49,10 @@ class Usuario:
     senha: Mapped[str]
 
     cliente_id: Mapped[int] = mapped_column(ForeignKey('clientes.id'))
+
+    cliente: Mapped[Cliente] = relationship(
+        init=False, back_populates='usuario'
+    )
 
 
 @table_registry.mapped_as_dataclass
@@ -58,6 +71,10 @@ class Pedido:
     )
 
     cliente_id: Mapped[int] = mapped_column(ForeignKey('clientes.id'))
+
+    cliente: Mapped[Cliente] = relationship(
+        init=False, back_populates='pedidos'
+    )
 
 
 @table_registry.mapped_as_dataclass

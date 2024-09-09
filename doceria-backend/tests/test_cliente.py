@@ -91,7 +91,7 @@ def test_update_cliente(client, cliente, token):
 
 def test_delete_cliente(client, cliente, token_admin):
     response = client.delete(
-        f'/clientes/{cliente.id}',
+        '/clientes/1',
         headers={'Authorization': f'Bearer {token_admin}'},
     )
     assert response.status_code == HTTPStatus.OK

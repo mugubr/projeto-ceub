@@ -8,7 +8,6 @@ from doceria_backend.routes.cliente import router as cliente_router
 from doceria_backend.routes.mensagem import router as mensagem_router
 from doceria_backend.routes.pedido import router as pedido_router
 from doceria_backend.routes.produto import router as produto_router
-from doceria_backend.routes.usuario import router as usuario_router
 
 app = FastAPI(title='API Katherine Corrales - Doceria')
 
@@ -17,7 +16,6 @@ app.include_router(auth_router)
 app.include_router(cliente_router)
 app.include_router(pedido_router)
 app.include_router(produto_router)
-app.include_router(usuario_router)
 
 origins = ['*']
 

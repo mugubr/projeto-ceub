@@ -1,8 +1,8 @@
-"""atualiza parametros da coluna atualizado_em da tabela de clientes
+"""empty message
 
-Revision ID: e4cd53545244
-Revises: 41b4d709e5ef
-Create Date: 2024-09-03 17:56:40.184591
+Revision ID: 7c260e555d63
+Revises: a556291bccb2
+Create Date: 2024-09-08 22:14:22.149774
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e4cd53545244'
-down_revision: Union[str, None] = '41b4d709e5ef'
+revision: str = '7c260e555d63'
+down_revision: Union[str, None] = 'a556291bccb2'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

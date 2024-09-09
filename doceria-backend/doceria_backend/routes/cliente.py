@@ -174,6 +174,7 @@ def delete_cliente(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Cliente não encontrado'
         )
+
     session.delete(cliente_db)
     session.commit()
     return {'message': 'Cliente deletado'}

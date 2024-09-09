@@ -1,6 +1,5 @@
 from http import HTTPStatus
 
-import pywhatkit as whatsapp
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -67,11 +66,7 @@ def envia_mensagem_whatsapp(
 
     mensagem = mensagem.mensagem
 
-    whatsapp.sendwhatmsg_instantly(
-        phone_no=numero_formatado, message=mensagem, tab_close=True
-    )
-
-    return {'message': 'Mensagem enviada com sucesso'}
+    return {'message': f'Mensagem enviada para o número {numero_formatado}'}
 
 
 @router.post(

@@ -395,6 +395,14 @@ def delete_pedido(
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
         )
+
+    pedido_produtos = session.scalars(
+        select(PedidoProduto).where(PedidoProduto.pedido_id == pedido_id)
+    ).all()
+
+    for pedido_produto in pedido_produtos:
+        session.delete(pedido_produto)
+
     session.delete(pedido_db)
     session.commit()
     return {'message': 'Pedido deletado'}

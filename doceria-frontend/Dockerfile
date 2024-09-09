@@ -2,8 +2,7 @@ FROM node:20.17.0-alpine
 
 WORKDIR /app
 
-COPY doceria-frontend/package.json ./
-
+COPY doceria-frontend/package.json ./ 
 COPY doceria-frontend/package-lock.json ./
 
 RUN npm install

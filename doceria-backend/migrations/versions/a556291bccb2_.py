@@ -1,8 +1,8 @@
-"""cria models base
+"""empty message
 
-Revision ID: 41b4d709e5ef
+Revision ID: a556291bccb2
 Revises: 
-Create Date: 2024-09-03 16:47:41.297365
+Create Date: 2024-09-08 21:57:23.156175
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '41b4d709e5ef'
+revision: str = 'a556291bccb2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('data_nascimento', sa.Date(), nullable=False),
     sa.Column('celular', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
-    sa.Column('criado_em', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.Column('criado_em', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('atualizado_em', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('celular'),
@@ -56,7 +56,7 @@ def upgrade() -> None:
     sa.Column('logradouro', sa.String(), nullable=False),
     sa.Column('numero_complemento', sa.String(), nullable=False),
     sa.Column('ponto_referencia', sa.String(), nullable=False),
-    sa.Column('criado_em', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.Column('criado_em', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('cliente_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['cliente_id'], ['clientes.id'], ),
     sa.PrimaryKeyConstraint('id')
