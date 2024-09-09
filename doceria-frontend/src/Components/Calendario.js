@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
-import GlobalContext from "../context/GlobalContext";
+import GlobalContext from "../Context/GlobalContext.js";
 import { getMonth } from "../util.js";
-import CalendarioHeader from "./CalendarioHeader";
-import EventoModal from "./EventoModal.js";
+import CalendarioHeader from "./CalendarioHeader.js";
+import PedidoModal from "./PedidoModal.js";
 import Mes from "./Mes.js";
 export default function Calendario() {
     const [currentMonth, setCurrentMonth] = useState(getMonth());
@@ -14,7 +14,7 @@ export default function Calendario() {
 
     return (
         <>
-        {showEventModal && <EventoModal />}
+        {showEventModal && <PedidoModal />}
         <div className="flex flex-col h-full">
         <CalendarioHeader />
         <div className="flex flex-1 overflow-auto">

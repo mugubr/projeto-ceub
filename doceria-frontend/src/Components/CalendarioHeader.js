@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import React, { useContext } from "react";
-import GlobalContext from "../context/GlobalContext";
+import GlobalContext from "../Context/GlobalContext.js";
 import { formatDate } from "../util.js";
 
 export default function CalendarioHeader() {

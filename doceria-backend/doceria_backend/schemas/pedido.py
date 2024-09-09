@@ -33,6 +33,7 @@ class PedidoResponseSchema(PedidoDB):
     status: str
     celular: str
     descricao: str
+    nome: str
 
 
 class PedidoPorMesResponseSchema(BaseModel):

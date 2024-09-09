@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: app_password
     ports:
       - "5432:5432"
+    networks:
+      - doceria_network
 
   doceria_backend:
     build:
@@ -21,6 +23,8 @@ services:
       - doceria_database
     environment:
       DATABASE_URL: postgresql+psycopg://app_user:app_password@doceria_database:5432/app_db
+    networks:
+      - doceria_network
 
   doceria_frontend:
     build:
@@ -31,6 +35,8 @@ services:
       - "3000:80"
     stdin_open: true
     tty: true
+    networks:
+      - doceria_network
 
 volumes:
   pgdata:

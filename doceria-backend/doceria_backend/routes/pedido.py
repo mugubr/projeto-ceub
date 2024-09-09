@@ -25,7 +25,7 @@ def read_pedidos(
     limit: int = 10,
     offset: int = 0,
     session: Session = Depends(get_session),
-    current_user=Depends(get_admin),
+    # current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(select(Pedido).limit(limit).offset(offset)).all()
 
@@ -50,11 +50,14 @@ def read_pedidos(
             status = 'Entregue'
 
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente.celular:
             celular = cliente.celular
+        if cliente.nome:
+            nome = cliente.nome
 
         descricao = ''
         for pedido_produto in pedido_produtos:
@@ -78,6 +81,7 @@ def read_pedidos(
             valor=valor_total,
             status=status,
             celular=celular,
+            nome=nome,
             descricao=descricao.rstrip(', '),
         )
         resposta.append(pedido_resposta)
@@ -117,11 +121,14 @@ def read_pedidos_by_cliente(
             status = 'Entregue'
 
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente.celular:
             celular = cliente.celular
+        if cliente.nome:
+            nome = cliente.nome
 
         descricao = ''
         for pedido_produto in pedido_produtos:
@@ -145,6 +152,7 @@ def read_pedidos_by_cliente(
             valor=valor_total,
             status=status,
             celular=celular,
+            nome=nome,
             descricao=descricao.rstrip(', '),
         )
         resposta.append(pedido_resposta)
@@ -157,7 +165,7 @@ def read_pedidos_by_mes(
     ano: int,
     mes: int,
     session: Session = Depends(get_session),
-    current_user=Depends(get_admin),
+    # current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(
         select(Pedido)
@@ -193,11 +201,14 @@ def read_pedidos_by_mes(
             status = 'Entregue'
 
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente and cliente.celular:
             celular = cliente.celular
+        if cliente and cliente.nome:
+            nome = cliente.nome
 
         pedido_resposta = PedidoResponseSchema(
             id=pedido.id,
@@ -212,6 +223,7 @@ def read_pedidos_by_mes(
             valor=valor_total,
             status=status,
             celular=celular,
+            nome=nome,
             descricao=descricao.rstrip(', '),
         )
 
@@ -253,11 +265,14 @@ def read_pedido(
         status = 'Entregue'
 
     celular = ''
+    nome = ''
     cliente = session.scalar(
         select(Cliente).where(Cliente.id == pedido.cliente_id)
     )
     if cliente.celular:
         celular = cliente.celular
+    if cliente.nome:
+        nome = cliente.nome
 
     descricao = ''
     for pedido_produto in pedido_produtos:
@@ -279,6 +294,7 @@ def read_pedido(
         valor=valor_total,
         status=status,
         celular=celular,
+        nome=nome,
         descricao=descricao.rstrip(', '),
     )
     return pedido_resposta
@@ -325,10 +341,6 @@ def create_pedido(
     session.commit()
     session.refresh(novo_pedido_db)
 
-    pedido_db = session.scalar(
-        select(Pedido).where((Pedido.cliente_id == novo_pedido.cliente_id))
-    )
-
     for produto in novo_pedido.produtos:
         if produto.quantidade < pedido_minimo_por_produto:
             raise HTTPException(
@@ -337,7 +349,7 @@ def create_pedido(
             )
 
         novo_pedido_produto = PedidoProduto(
-            pedido_id=pedido_db.id,
+            pedido_id=novo_pedido_db.id,
             produto_id=produto.produto_id,
             quantidade=produto.quantidade,
         )

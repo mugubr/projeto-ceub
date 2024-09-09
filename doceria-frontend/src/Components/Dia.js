@@ -1,24 +1,34 @@
 import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
-import GlobalContext from "../context/GlobalContext";
+import GlobalContext from "../Context/GlobalContext.js";
 import { formatDate } from "../util.js";
+import usePedidosByMes from "../hooks/usePedidosByMes.js"
 
-export default function Dia({ day, rowIdx }) {
+const statusColors = {
+  "Em andamento": "#F8EDCE", 
+  "Entregue": "#D7EFD5",    
+};
+
+const statusColorsBar = {
+  "Em andamento": "#EBB623", 
+  "Entregue": "#61C354",    
+};
+
+export default function Dia({ day, rowIdx, mes}) {
   const [dayEvents, setDayEvents] = useState([]);
+  const pedidos = usePedidosByMes(mes);
+
   const {
     setDaySelected,
     setShowEventModal,
-    filteredEvents,
     setSelectedEvent,
   } = useContext(GlobalContext);
 
+
   useEffect(() => {
-    const events = filteredEvents.filter(
-      (evt) =>
-        dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-    );
-    setDayEvents(events);
-  }, [filteredEvents, day]);
+    const dateKey = day.format("YYYY-MM-DD");
+    setDayEvents(pedidos[dateKey] || []);
+  }, [day, pedidos]);
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
@@ -40,21 +50,32 @@ export default function Dia({ day, rowIdx }) {
         </p>
       </header>
       <div
-        className="flex-1 cursor-pointer"
+        className="flex-1 cursor-pointer overflow-y-auto overflow-x-hidden"
         onClick={() => {
           setDaySelected(day);
           setShowEventModal(true);
         }}
       >
-        {dayEvents.map((evt, idx) => (
-          <div
-            key={idx}
-            onClick={() => setSelectedEvent(evt)}
-            className={`bg-${evt.label}-200 p-1 mr-3 text-gray-600 text-sm rounded mb-1 truncate`}
-          >
-            {evt.title}
-          </div>
-        ))}
+<div className="max-h-48 overflow-y-auto overflow-x-hidden">
+          {dayEvents.map((evt, idx) => {
+            const statusColor = statusColors[evt.status] || "#000000";
+            const statusColorBar = statusColorsBar[evt.status] || "#000000";
+            return (
+              <div
+                key={idx}
+                onClick={() => setSelectedEvent(evt)}
+                style={{ backgroundColor: statusColor }}
+                className="w-full p-1 mr-3 text-sm truncate flex items-center relative"
+              >
+                <span
+                  className="absolute left-0 top-0 h-full w-1"
+                  style={{ backgroundColor: statusColorBar }}
+                ></span>
+                <div className="pl-2">{evt.nome}/{evt.ocasiao}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

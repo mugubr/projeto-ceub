@@ -55,6 +55,7 @@ def test_read_pedidos(client, pedido, token_admin):
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
+                'nome': 'Cliente Teste',
                 'descricao': '25X Produto Teste',
             }
         ]
@@ -82,6 +83,7 @@ def test_read_pedidos_by_cliente(client, cliente, pedido, token):
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
+                'nome': 'Cliente Teste',
                 'descricao': '25X Produto Teste',
             }
         ]
@@ -169,6 +171,7 @@ def test_read_pedido(client, pedido, token_admin):
         'valor': 250.0,
         'status': 'Em andamento',
         'celular': '11999999999',
+        'nome': 'Cliente Teste',
         'descricao': '25X Produto Teste',
     }
 
