@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 database.db
+PyWhatKit_DB.txt
+database.url
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
