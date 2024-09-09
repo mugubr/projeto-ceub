@@ -1,6 +1,14 @@
 import dayjs from "dayjs";
 import 'dayjs/locale/pt-br.js'
+const apiUrl = 'http://localhost:8000'
 
+export function getPedidos()
+{
+  fetch(`${apiUrl}/pedidos`)
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+}
 
 export function getMonth(month = dayjs().month()) {
   month = Math.floor(month);

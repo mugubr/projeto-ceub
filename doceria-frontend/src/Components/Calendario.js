@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import GlobalContext from "../Context/GlobalContext";
+import GlobalContext from "../context/GlobalContext";
 import { getMonth } from "../util.js";
 import CalendarioHeader from "./CalendarioHeader";
 import EventoModal from "./EventoModal.js";
@@ -15,9 +15,9 @@ export default function Calendario() {
     return (
         <>
         {showEventModal && <EventoModal />}
-        <div className="h-screen flex flex-col">
+        <div className="flex flex-col h-full">
         <CalendarioHeader />
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-auto">
           <Mes month={currentMonth} />
         </div>
       </div>

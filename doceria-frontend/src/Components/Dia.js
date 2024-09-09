@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
-import GlobalContext from "../Context/GlobalContext";
+import GlobalContext from "../context/GlobalContext";
 import { formatDate } from "../util.js";
 
 export default function Dia({ day, rowIdx }) {
@@ -22,7 +22,7 @@ export default function Dia({ day, rowIdx }) {
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-      ? "bg-blue-600 text-white rounded-full w-7"
+      ? "text-blue-600 font-bold"
       : "";
   }
   return (
