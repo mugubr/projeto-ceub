@@ -4,12 +4,13 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy.pool import StaticPool
+from testcontainers.postgres import PostgresContainer
 
 from doceria_backend.app import app
 from doceria_backend.database import get_session
 from doceria_backend.models import (
     Cliente,
+    Mensagem,
     Pedido,
     PedidoProduto,
     Produto,
@@ -18,6 +19,15 @@ from doceria_backend.models import (
 )
 from doceria_backend.security import get_password_hash
 from doceria_backend.settings import Settings
+
+
+@pytest.fixture(scope='session')
+def engine():
+    with PostgresContainer('postgres:16', driver='psycopg') as postgres:
+        _engine = create_engine(postgres.get_connection_url())
+
+        with _engine.begin():
+            yield _engine
 
 
 @pytest.fixture
@@ -33,16 +43,13 @@ def client(session):
 
 
 @pytest.fixture
-def session():
-    engine = create_engine(
-        'sqlite:///:memory:',
-        connect_args={'check_same_thread': False},
-        poolclass=StaticPool,
-    )
-
+def session(engine):
     table_registry.metadata.create_all(engine)
+
     with Session(engine) as session:
         yield session
+        session.rollback()
+
     table_registry.metadata.drop_all(engine)
 
 
@@ -136,7 +143,7 @@ def pedido(session: Session, cliente: Cliente, produto: Produto):
 @pytest.fixture
 def token(client, usuario):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': usuario.usuario, 'password': usuario.senha_limpa},
     )
     return response.json()['access_token']
@@ -145,7 +152,19 @@ def token(client, usuario):
 @pytest.fixture
 def token_admin(client, admin):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': admin.usuario, 'password': admin.senha_limpa},
     )
     return response.json()['access_token']
+
+
+@pytest.fixture
+def mensagem(session: Session):
+    mensagem = Mensagem(
+        mensagem='mensagem teste',
+    )
+    session.add(mensagem)
+    session.commit()
+    session.refresh(mensagem)
+
+    return mensagem
