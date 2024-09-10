@@ -84,7 +84,6 @@ class Produto:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     nome: Mapped[str] = mapped_column(unique=True)
     preco: Mapped[float]
-    tempo_producao: Mapped[int]
     vegano: Mapped[bool]
     gluten: Mapped[bool]
     lactose: Mapped[bool]

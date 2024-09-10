@@ -195,11 +195,6 @@ def read_pedidos_by_mes(
             valor_total += produto.preco * pedido_produto.quantidade
             descricao += f'{int(pedido_produto.quantidade)}X {produto.nome}, '
 
-        status = 'Em andamento'
-        hoje = datetime.now().date()
-        if pedido.data_entrega and pedido.data_entrega < hoje:
-            status = 'Entregue'
-
         celular = ''
         nome = ''
         cliente = session.scalar(
@@ -210,27 +205,40 @@ def read_pedidos_by_mes(
         if cliente and cliente.nome:
             nome = cliente.nome
 
-        pedido_resposta = PedidoResponseSchema(
-            id=pedido.id,
-            cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
-            data_entrega=pedido.data_entrega,
-            ocasiao=pedido.ocasiao,
-            bairro=pedido.bairro,
-            logradouro=pedido.logradouro,
-            numero_complemento=pedido.numero_complemento,
-            ponto_referencia=pedido.ponto_referencia,
-            valor=valor_total,
-            status=status,
-            celular=celular,
-            nome=nome,
-            descricao=descricao.rstrip(', '),
-        )
+        def adicionar_pedido(dia, status):
+            pedido_resposta = PedidoResponseSchema(
+                id=pedido.id,
+                cliente_id=pedido.cliente_id,
+                criado_em=pedido.criado_em,
+                data_entrega=pedido.data_entrega,
+                ocasiao=pedido.ocasiao,
+                bairro=pedido.bairro,
+                logradouro=pedido.logradouro,
+                numero_complemento=pedido.numero_complemento,
+                ponto_referencia=pedido.ponto_referencia,
+                valor=valor_total,
+                status=status,
+                celular=celular,
+                nome=nome,
+                descricao=descricao.rstrip(', '),
+            )
+            if dia not in pedidos_agrupados:
+                pedidos_agrupados[dia] = []
+            pedidos_agrupados[dia].append(pedido_resposta)
 
-        dia = pedido.criado_em.day
-        if dia not in pedidos_agrupados:
-            pedidos_agrupados[dia] = []
-        pedidos_agrupados[dia].append(pedido_resposta)
+        adicionar_pedido(pedido.criado_em.day, 'Pedido')
+
+        if pedido.data_entrega:
+            dias_em_andamento = 7
+            for i in range(dias_em_andamento, 0, -1):
+                data_producao = pedido.data_entrega - timedelta(days=i)
+                if data_producao.month == mes and data_producao.year == ano:
+                    adicionar_pedido(data_producao.day, 'Em andamento')
+
+            if (pedido.data_entrega.month == mes) and (
+                pedido.data_entrega.year == ano
+            ):
+                adicionar_pedido(pedido.data_entrega.day, 'Entregue')
 
     return {'ano': ano, 'mes': mes, 'pedidos': pedidos_agrupados}
 

@@ -62,7 +62,6 @@ def create_produto(
     novo_produto_db = Produto(
         nome=novo_produto.nome,
         preco=novo_produto.preco,
-        tempo_producao=novo_produto.tempo_producao,
         vegano=novo_produto.vegano,
         gluten=novo_produto.gluten,
         lactose=novo_produto.lactose,
@@ -92,7 +91,6 @@ def update_produto(
 
     produto_db.nome = produto.nome
     produto_db.preco = produto.preco
-    produto_db.tempo_producao = produto.tempo_producao
     produto_db.vegano = produto.vegano
     produto_db.gluten = produto.gluten
     produto_db.lactose = produto.lactose
