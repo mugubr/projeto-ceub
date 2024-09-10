@@ -1,14 +1,8 @@
-import React, { useContext} from "react";
+import React, { useContext } from "react";
 import GlobalContext from "../Context/GlobalContext";
 
-
 export default function PedidoModal() {
-  const {
-    setShowEventModal,
-    selectedEvent,
-  } = useContext(GlobalContext);
-
-
+  const { setShowEventModal, selectedEvent } = useContext(GlobalContext);
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center">
@@ -24,71 +18,45 @@ export default function PedidoModal() {
           </div>
         </header>
         <div className="p-3">
-        {selectedEvent ? (
+          {selectedEvent ? (
             <div className="grid grid-cols-1 gap-y-4">
               <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Nº do pedido
-                </p>
+                <p className=" text-gray-400">Nº do pedido</p>
+                <p>{selectedEvent.id || "N/A"}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className=" text-gray-400">Cliente</p>
+                <p>{selectedEvent.nome || "N/A"}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className=" text-gray-400">Contato</p>
+                <p>{selectedEvent.celular || "N/A"}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className=" text-gray-400">Tipo do evento</p>
+                <p>{selectedEvent.ocasiao || "N/A"}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className=" text-gray-400">Data da entrega</p>
+                <p>{selectedEvent.data_entrega || "N/A"}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className=" text-gray-400">Endereço</p>
                 <p>
-                {selectedEvent.id || "N/A"}
+                  {selectedEvent.logradouro +
+                    " " +
+                    selectedEvent.bairro +
+                    " " +
+                    selectedEvent.numero_complemento || "N/A"}
                 </p>
               </div>
               <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Cliente
-                </p>
-                <p>
-                {selectedEvent.nome || "N/A"}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Contato
-                </p>
-                <p>
-                {selectedEvent.celular || "N/A"}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Tipo do evento
-                </p>
-                <p>
-                {selectedEvent.ocasiao || "N/A"}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Data da entrega
-                </p>
-                <p>
-                {selectedEvent.data_entrega || "N/A"}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Endereço
-                </p>
-                <p>
-                {selectedEvent.logradouro +" "+ selectedEvent.bairro +" "+  selectedEvent.numero_complemento || "N/A"}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className=" text-gray-400">
-                Valor
-                </p>
-                <p>
-                {"R$" + selectedEvent.valor || "N/A"}
-                </p>
+                <p className=" text-gray-400">Valor</p>
+                <p>{"R$" + selectedEvent.valor || "N/A"}</p>
               </div>
               <div>
-                <p>
-                Descrição
-                </p>
-                <p>
-                {selectedEvent.descricao || "N/A"}
-                </p>
+                <p>Descrição</p>
+                <p>{selectedEvent.descricao || "N/A"}</p>
               </div>
             </div>
           ) : (

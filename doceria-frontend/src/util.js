@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import 'dayjs/locale/pt-br.js'
+import "dayjs/locale/pt-br.js";
 
 export function getMonth(month = dayjs().month()) {
   month = Math.floor(month);
@@ -16,5 +16,5 @@ export function getMonth(month = dayjs().month()) {
 }
 
 export function formatDate(date, format) {
-    return dayjs(date).locale('pt-br').format(format);
-  }
+  return dayjs(date).locale("pt-br").format(format);
+}

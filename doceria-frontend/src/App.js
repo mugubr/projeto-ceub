@@ -1,19 +1,18 @@
-import Calendario from "./Components/Calendario";
-import Sidebar from './Components/Sidebar';
-import Header from './Components/Header';
-import Content from './Components/Content';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import LoginPage from "./Components/LoginPage.js";
+import RegistroPage from "./Components/RegistroPage.js";
+import CalendarioPage from "./Components/CalendarioPage";
 
 function App() {
   return (
-    <div className="flex h-screen overflow-hidden">
-    <Sidebar nome={'Teste'}/>
-    <div className="flex flex-col flex-1">
-        <Header texto={'Calendário'} />
-        <Content>
-            <Calendario/>
-        </Content>
-    </div>
-</div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/registro" element={<RegistroPage />} />
+        <Route path="/calendario" element={<CalendarioPage />} />
+      </Routes>
+    </Router>
   );
 }
 

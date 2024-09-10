@@ -4,21 +4,15 @@ import GlobalContext from "../Context/GlobalContext";
 import { getMonth } from "../util";
 import { formatDate } from "../util.js";
 
-
 export default function CalendarioAuxiliar() {
-  const [currentMonthIdx, setCurrentMonthIdx] = useState(
-    dayjs().month()
-  );
+  const [currentMonthIdx, setCurrentMonthIdx] = useState(dayjs().month());
   const [currentMonth, setCurrentMonth] = useState(getMonth());
   useEffect(() => {
     setCurrentMonth(getMonth(currentMonthIdx));
   }, [currentMonthIdx]);
 
-  const {
-    monthIndex,
-    setSmallCalendarMonth,
-    setDaySelected,
-  } = useContext(GlobalContext);
+  const { monthIndex, setSmallCalendarMonth, setDaySelected } =
+    useContext(GlobalContext);
 
   useEffect(() => {
     setCurrentMonthIdx(monthIndex);
@@ -36,14 +30,13 @@ export default function CalendarioAuxiliar() {
     const currDay = day.format(format);
     if (nowDay === currDay) {
       return "bg-blue-500 rounded-full text-white";
-    }  else {
+    } else {
       return "";
     }
   }
   return (
     <div className="mt-9 w-full">
       <header>
- 
         <div className="flex">
           <button onClick={handlePrevMonth}>
             <span className="material-icons-outlined cursor-pointer text-white">
@@ -51,8 +44,11 @@ export default function CalendarioAuxiliar() {
             </span>
           </button>
           <p className="text-white font-bold text-sm">
-          {formatDate(dayjs(new Date(dayjs().year(), currentMonthIdx)), "MMMM YYYY").replace(/^\w/, c => c.toUpperCase())}
-        </p>
+            {formatDate(
+              dayjs(new Date(dayjs().year(), currentMonthIdx)),
+              "MMMM YYYY",
+            ).replace(/^\w/, (c) => c.toUpperCase())}
+          </p>
           <button onClick={handleNextMonth}>
             <span className="material-icons-outlined cursor-pointer text-white">
               chevron_right
