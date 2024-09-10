@@ -29,7 +29,7 @@ export default function CalendarioAuxiliar() {
     const nowDay = dayjs().format(format);
     const currDay = day.format(format);
     if (nowDay === currDay) {
-      return "bg-blue-500 rounded-full text-white";
+      return "bg-blue-500 rounded-lg text-white";
     } else {
       return "";
     }
@@ -71,7 +71,7 @@ export default function CalendarioAuxiliar() {
                   setSmallCalendarMonth(currentMonthIdx);
                   setDaySelected(day);
                 }}
-                className={`py-2 w-full ${getDayClass(day)} ${day.day() === 0 || day.day() === 6 ? "text-blue-700" : ""}`}
+                className={`w-full ${getDayClass(day)}`}
               >
                 <span className="text-xs">{day.format("D")}</span>
               </button>

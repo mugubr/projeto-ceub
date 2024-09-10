@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../Context/GlobalContext.js";
 import { formatDate } from "../util.js";
-import usePedidosByMes from "../hooks/usePedidosByMes.js";
 
 const statusColors = {
   "Em andamento": "#F8EDCE",
@@ -14,12 +13,10 @@ const statusColorsBar = {
   Entregue: "#61C354",
 };
 
-export default function Dia({ day, rowIdx, mes }) {
+export default function Dia({ day, rowIdx, pedidos }) {
   const [dayEvents, setDayEvents] = useState([]);
-  const pedidos = usePedidosByMes(mes);
 
-  const { setDaySelected, setShowEventModal, setSelectedEvent } =
-    useContext(GlobalContext);
+  const { setShowEventModal, setSelectedEvent } = useContext(GlobalContext);
 
   useEffect(() => {
     const dateKey = day.format("YYYY-MM-DD");
@@ -41,13 +38,7 @@ export default function Dia({ day, rowIdx, mes }) {
           {formatDate(day, "DD")}
         </p>
       </header>
-      <div
-        className="flex-1 cursor-pointer overflow-y-auto overflow-x-hidden"
-        onClick={() => {
-          setDaySelected(day);
-          setShowEventModal(true);
-        }}
-      >
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <div className="max-h-48 overflow-y-auto overflow-x-hidden">
           {dayEvents.map((evt, idx) => {
             const statusColor = statusColors[evt.status] || "#000000";
@@ -55,9 +46,12 @@ export default function Dia({ day, rowIdx, mes }) {
             return (
               <div
                 key={idx}
-                onClick={() => setSelectedEvent(evt)}
+                onClick={() => {
+                  setSelectedEvent(evt);
+                  setShowEventModal(true);
+                }}
                 style={{ backgroundColor: statusColor }}
-                className="w-full p-1 mr-3 text-sm truncate flex items-center relative"
+                className="w-full p-1 cursor-pointer mr-3 text-sm truncate flex items-center relative"
               >
                 <span
                   className="absolute left-0 top-0 h-full w-1"

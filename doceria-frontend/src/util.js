@@ -18,3 +18,6 @@ export function getMonth(month = dayjs().month()) {
 export function formatDate(date, format) {
   return dayjs(date).locale("pt-br").format(format);
 }
+
+export const formatDateBR = (date) =>
+  dayjs(date).locale("pt-br").format("D/MM/YYYY");
