@@ -15,7 +15,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-  const { currentUser, setCurrentUser } = useContext(GlobalContext);
+  const { setCurrentUser } = useContext(GlobalContext);
   const [errorMessage, setErrorMessage] = useState("");
 
   const onSubmit = async (data) => {
@@ -47,7 +47,7 @@ export default function LoginPage() {
       };
 
       setCurrentUser(user);
-      if (currentUser.username === 'katherine.corrales') {
+      if (user.username === 'katherine.corrales') {
 
         navigate("/calendario");
       }
