@@ -4,15 +4,15 @@ import GlobalContext from "../Context/GlobalContext.js";
 import { formatDate } from "../util.js";
 
 const statusColors = {
-  "Pedido": "#D1DFFD",
+  Pedido: "#D1DFFD",
   "Em andamento": "#F8EDCE",
-  "Entregue": "#D7EFD5",
+  Entregue: "#D7EFD5",
 };
 
 const statusColorsBar = {
-  "Pedido": "#2D78EE",
+  Pedido: "#2D78EE",
   "Em andamento": "#EBB623",
-  "Entregue": "#61C354",
+  Entregue: "#61C354",
 };
 
 export default function Dia({ day, rowIdx, pedidos }) {

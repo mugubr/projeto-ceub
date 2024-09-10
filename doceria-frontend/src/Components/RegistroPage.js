@@ -4,7 +4,7 @@ import logo from "../assets/logo.png";
 import InputMask from "react-input-mask";
 import backgroundImage from "../assets/login.png";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function RegistroPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function RegistroPage() {
     data_nascimento: "",
     celular: "",
     usuario: "",
-    senha: ""
+    senha: "",
   });
 
   const handleInputChange = (e) => {
@@ -45,9 +45,8 @@ export default function RegistroPage() {
       }
 
       toast.success("Cadastro realizado com sucesso!");
-      
+
       setTimeout(() => navigate("/"), 3000);
-      
     } catch (error) {
       console.error("Erro ao registrar usuário:", error);
     }

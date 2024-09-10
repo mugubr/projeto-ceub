@@ -5,8 +5,7 @@ import logo from "../assets/logo.png";
 import backgroundImage from "../assets/login.png";
 import { useForm } from "react-hook-form";
 import { jwtDecode } from "jwt-decode";
-import { toast, ToastContainer } from 'react-toastify';
-
+import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
   const {
@@ -38,7 +37,7 @@ export default function LoginPage() {
       }
 
       const result = await response.json();
-      toast.success("Login bem sucedido")
+      toast.success("Login bem sucedido");
 
       localStorage.setItem("access_token", result.access_token);
       const decodedToken = jwtDecode(result.access_token);
@@ -47,14 +46,11 @@ export default function LoginPage() {
       };
 
       setCurrentUser(user);
-      if (user.username === 'katherine.corrales') {
-
+      if (user.username === "katherine.corrales") {
         navigate("/calendario");
-      }
-      else {
+      } else {
         navigate("/home");
       }
-
     } catch (error) {
       console.error("Erro ao enviar dados", error);
     }
@@ -122,8 +118,9 @@ export default function LoginPage() {
           {errorMessage && (
             <div className=" text-red-500">
               <p className="text-xs">{errorMessage}</p>
-            </div>)}
-            <ToastContainer />
+            </div>
+          )}
+          <ToastContainer />
         </form>
       </div>
     </div>

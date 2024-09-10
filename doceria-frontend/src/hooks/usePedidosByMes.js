@@ -21,7 +21,9 @@ export default function usePedidosByMes(month) {
 
         Object.keys(pedidosPorDia).forEach((day) => {
           pedidosPorDia[day].forEach((pedido) => {
-            const dateKey = dayjs(`${ano}-${month}-${day}`).format("YYYY-MM-DD");
+            const dateKey = dayjs(`${ano}-${month}-${day}`).format(
+              "YYYY-MM-DD",
+            );
             if (!organizedPedidos[dateKey]) {
               organizedPedidos[dateKey] = [];
             }
