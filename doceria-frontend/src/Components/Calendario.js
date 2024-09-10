@@ -8,7 +8,7 @@ import usePedidosByMes from "../hooks/usePedidosByMes.js";
 
 export default function Calendario() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
-  const { monthIndex, showEventModal } = useContext(GlobalContext);
+  const { monthIndex, showPedidoModal } = useContext(GlobalContext);
   const pedidos = usePedidosByMes(monthIndex + 1);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function Calendario() {
 
   return (
     <>
-      {showEventModal && <PedidoModal />}
+      {showPedidoModal && <PedidoModal />}
       <div className="flex flex-col h-full">
         <CalendarioHeader />
         <div className="flex flex-1 overflow-auto">

@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import GlobalContext from "../Context/GlobalContext";
 import { formatDateBR } from "../util";
 export default function PedidoModal() {
-  const { setShowEventModal, selectedEvent } = useContext(GlobalContext);
+  const { setShowPedidoModal, selectedEvent } = useContext(GlobalContext);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -10,7 +10,7 @@ export default function PedidoModal() {
         <header className=" px-4 py-2 flex justify-between items-center rounded-t-lg">
           <h2 className="text-lg font-semibold">Pedido {selectedEvent.id}</h2>
           <button
-            onClick={() => setShowEventModal(false)}
+            onClick={() => setShowPedidoModal(false)}
             className="text-gray-400 hover:text-gray-600"
           >
             <span className="material-icons-outlined">close</span>
@@ -71,7 +71,7 @@ export default function PedidoModal() {
         <footer className="flex justify-center p-4 rounded-b-lg">
           <button
             type="button"
-            onClick={() => setShowEventModal(false)}
+            onClick={() => setShowPedidoModal(false)}
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
           >
             Fechar

@@ -7,10 +7,12 @@ const GlobalContext = React.createContext({
   setSmallCalendarMonth: (index) => {},
   daySelected: null,
   setDaySelected: (day) => {},
-  showEventModal: false,
-  setShowEventModal: () => {},
+  showPedidoModal: false,
+  setShowPedidoModal: () => {},
   selectedEvent: null,
   setSelectedEvent: () => {},
+  currentUser: null,
+  setCurrentUser: (user) => {},
 });
 
 export default GlobalContext;

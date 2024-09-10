@@ -16,7 +16,7 @@ const statusColorsBar = {
 export default function Dia({ day, rowIdx, pedidos }) {
   const [dayEvents, setDayEvents] = useState([]);
 
-  const { setShowEventModal, setSelectedEvent } = useContext(GlobalContext);
+  const { setShowPedidoModal, setSelectedEvent } = useContext(GlobalContext);
 
   useEffect(() => {
     const dateKey = day.format("YYYY-MM-DD");
@@ -48,7 +48,7 @@ export default function Dia({ day, rowIdx, pedidos }) {
                 key={idx}
                 onClick={() => {
                   setSelectedEvent(evt);
-                  setShowEventModal(true);
+                  setShowPedidoModal(true);
                 }}
                 style={{ backgroundColor: statusColor }}
                 className="w-full p-1 cursor-pointer mr-3 text-sm truncate flex items-center relative"
