@@ -53,7 +53,7 @@ export default function Dia({ day, rowIdx, pedidos }) {
                   setShowPedidoModal(true);
                 }}
                 style={{ backgroundColor: statusColor }}
-                className="w-full p-1 cursor-pointer mr-3 text-sm truncate flex items-center relative"
+                className="w-full p-1 cursor-pointer mr-3 text-sm truncate flex items-center relative transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
               >
                 <span
                   className="absolute left-0 top-0 h-full w-1"

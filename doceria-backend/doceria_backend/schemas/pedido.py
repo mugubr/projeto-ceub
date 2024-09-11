@@ -36,6 +36,10 @@ class PedidoResponseSchema(PedidoDB):
     nome: str
 
 
+class PedidoResponseDataSchema(PedidoResponseSchema):
+    criado_em: datetime
+
+
 class PedidoPorMesResponseSchema(BaseModel):
     ano: int
     mes: int
@@ -43,4 +47,4 @@ class PedidoPorMesResponseSchema(BaseModel):
 
 
 class PedidoLista(BaseModel):
-    pedidos: list[PedidoResponseSchema]
+    pedidos: list[PedidoResponseDataSchema]

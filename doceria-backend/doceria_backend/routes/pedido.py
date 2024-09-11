@@ -12,6 +12,7 @@ from doceria_backend.schemas.pedido import (
     PedidoDB,
     PedidoLista,
     PedidoPorMesResponseSchema,
+    PedidoResponseDataSchema,
     PedidoResponseSchema,
     PedidoSchema,
 )
@@ -68,10 +69,10 @@ def read_pedidos(
                 produto.nome
             }, '
 
-        pedido_resposta = PedidoResponseSchema(
+        pedido_resposta = PedidoResponseDataSchema(
             id=pedido.id,
             cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
+            criado_em=pedido.criado_em.isoformat(),
             data_entrega=pedido.data_entrega,
             ocasiao=pedido.ocasiao,
             bairro=pedido.bairro,
@@ -139,10 +140,10 @@ def read_pedidos_by_cliente(
                 produto.nome
             }, '
 
-        pedido_resposta = PedidoResponseSchema(
+        pedido_resposta = PedidoResponseDataSchema(
             id=pedido.id,
             cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
+            criado_em=pedido.criado_em.isoformat(),
             data_entrega=pedido.data_entrega,
             ocasiao=pedido.ocasiao,
             bairro=pedido.bairro,

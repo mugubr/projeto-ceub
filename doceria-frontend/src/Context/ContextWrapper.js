@@ -7,6 +7,7 @@ export default function ContextWrapper(props) {
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(null);
   const [daySelected, setDaySelected] = useState(dayjs());
   const [showPedidoModal, setShowPedidoModal] = useState(false);
+  const [showContatoModal, setShowContatoModal] = useState(false);
   const [showRealizarPedidoModal, setShowRealizarPedidoModal] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [currentUser, setCurrentUser] = useState();
@@ -47,6 +48,8 @@ export default function ContextWrapper(props) {
         setDaySelected,
         showPedidoModal,
         setShowPedidoModal,
+        showContatoModal,
+        setShowContatoModal,
         selectedPedido,
         setSelectedPedido,
         currentUser,

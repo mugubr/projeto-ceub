@@ -36,7 +36,6 @@ export default function RealizarPedido() {
 
     fetchProdutos();
   }, []);
-  console.log(carrinho);
   useEffect(() => {
     const calcularTotal = () => {
       const total = carrinho.produtos.reduce((acc, item) => {
@@ -182,8 +181,8 @@ export default function RealizarPedido() {
           >
             Concluir Pedido
           </button>
-          <ToastContainer />
         </main>
+        <ToastContainer />
       </div>
     </>
   );

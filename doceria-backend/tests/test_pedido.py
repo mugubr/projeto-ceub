@@ -47,6 +47,7 @@ def test_read_pedidos(client, pedido, token_admin):
                 'id': pedido.id,
                 'cliente_id': pedido.cliente_id,
                 'data_entrega': pedido.data_entrega.isoformat(),
+                'criado_em': pedido.criado_em.isoformat(),
                 'ocasiao': pedido.ocasiao,
                 'bairro': pedido.bairro,
                 'logradouro': pedido.logradouro,
@@ -74,6 +75,7 @@ def test_read_pedidos_by_cliente(client, cliente, pedido, token):
             {
                 'id': pedido.id,
                 'cliente_id': cliente.id,
+                'criado_em': pedido.criado_em.isoformat(),
                 'data_entrega': pedido.data_entrega.isoformat(),
                 'ocasiao': pedido.ocasiao,
                 'bairro': pedido.bairro,

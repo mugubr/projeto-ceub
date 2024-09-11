@@ -9,6 +9,8 @@ const GlobalContext = React.createContext({
   setDaySelected: (day) => {},
   showPedidoModal: false,
   setShowPedidoModal: () => {},
+  showContatoModal: false,
+  setShowContatoModal: () => {},
   showRealizarPedidoModal: false,
   setShowRealizarPedidoModal: () => {},
   selectedPedido: null,
