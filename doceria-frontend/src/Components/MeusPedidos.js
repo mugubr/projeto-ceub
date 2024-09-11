@@ -4,6 +4,7 @@ import { formatDateBR } from "../util";
 export default function MeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const cliente_id = localStorage.getItem("cliente_id");
+
   useEffect(() => {
     const fetchPedidos = async () => {
       try {
@@ -26,22 +27,22 @@ export default function MeusPedidos() {
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
           <thead>
             <tr>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold">
                 Número do Pedido
               </th>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold">
                 Data
               </th>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold hidden md:table-cell">
                 Endereço
               </th>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold">
                 Valor
               </th>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold hidden md:table-cell">
                 Status
               </th>
-              <th className="px-4 py-2 bg-gray-200 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-2 bg-yellow-400 text-center text-sm font-semibold hidden md:table-cell">
                 Data da Entrega
               </th>
             </tr>
@@ -50,26 +51,24 @@ export default function MeusPedidos() {
             {pedidos.length > 0 ? (
               pedidos.map((pedido) => (
                 <tr key={pedido.id} className="border-t border-gray-300">
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
+                  <td className="px-4 py-2 text-sm text-center text-gray-800">
                     {pedido.id}
                   </td>
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
+                  <td className="px-4 py-2 text-sm text-center text-gray-800">
                     {formatDateBR(pedido.criado_em)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
+                  <td className="px-4 py-2 text-sm text-center text-gray-800 hidden md:table-cell">
                     {pedido.logradouro +
                       " " +
                       pedido.bairro +
                       " " +
                       pedido.numero_complemento}
                   </td>
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
-                    {"R$" + pedido.valor}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
+                  <td className="px-4 py-2 text-sm text-center text-gray-800">{`R$${pedido.valor}`}</td>
+                  <td className="px-4 py-2 text-sm text-center text-gray-800 hidden md:table-cell">
                     {pedido.status}
                   </td>
-                  <td className="px-4 py-2 text-sm text-center  text-gray-800">
+                  <td className="px-4 py-2 text-sm text-center text-gray-800 hidden md:table-cell">
                     {formatDateBR(pedido.data_entrega)}
                   </td>
                 </tr>

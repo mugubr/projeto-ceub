@@ -13,7 +13,7 @@ export default function Header({ texto }) {
   };
 
   return (
-    <header className="flex items-center justify-between p-5 text-gray-500">
+    <header className="flex items-center justify-between p-5 ">
       <span className="text-xl font-bold">{texto}</span>
       <div className="relative flex items-center">
         <img
@@ -23,7 +23,7 @@ export default function Header({ texto }) {
           onClick={toggleDropdown}
         />
         <span
-          className={`material-icons-outlined cursor-pointer ml-2 text-gray-600 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+          className={`material-icons-outlined cursor-pointer ml-2  transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
           onClick={toggleDropdown}
         >
           keyboard_arrow_down
@@ -32,7 +32,7 @@ export default function Header({ texto }) {
           <div className="absolute right-0 mt-24 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <button
               onClick={handleLogout}
-              className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+              className="w-full px-4 py-2 text-left text-black  hover:bg-yellow-300"
             >
               Logout
             </button>

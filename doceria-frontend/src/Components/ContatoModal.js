@@ -45,7 +45,7 @@ export default function ContatoModal() {
             </div>
             <div className="flex justify-center flex-col items-center">
               <p>Retirada</p>
-              <p className="text-gray-500">WMS 14 - Sobredinho</p>
+              <p className="text-gray-500">QMS 14 - Sobredinho</p>
               <p className="text-red-500">Horário agendado</p>
             </div>
           </div>
