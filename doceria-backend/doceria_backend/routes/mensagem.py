@@ -53,7 +53,7 @@ def envia_mensagem_whatsapp(
     numero: str,
     mensagem_id: int,
     session: Session = Depends(get_session),
-    current_user=Depends(get_admin),
+    # current_user=Depends(get_admin),
 ):
     numero_formatado = '+55' + numero
     mensagem = session.scalar(

@@ -33,6 +33,11 @@ class PedidoResponseSchema(PedidoDB):
     status: str
     celular: str
     descricao: str
+    nome: str
+
+
+class PedidoResponseDataSchema(PedidoResponseSchema):
+    criado_em: datetime
 
 
 class PedidoPorMesResponseSchema(BaseModel):
@@ -42,4 +47,4 @@ class PedidoPorMesResponseSchema(BaseModel):
 
 
 class PedidoLista(BaseModel):
-    pedidos: list[PedidoResponseSchema]
+    pedidos: list[PedidoResponseDataSchema]

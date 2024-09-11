@@ -46,6 +46,30 @@ def read_cliente(
     return cliente
 
 
+@router.get('/usuario/{usuario}', response_model=ClienteDB)
+def read_cliente_by_usuario(
+    usuario: str,
+    session: Session = Depends(get_session),
+    # current_user=Depends(get_current_user),
+):
+    usuario_db = session.scalar(
+        select(Usuario).where(Usuario.usuario == usuario)
+    )
+    if not usuario_db:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
+        )
+
+    cliente = session.scalar(
+        select(Cliente).where(Cliente.id == usuario_db.cliente_id)
+    )
+    if not cliente:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Cliente não encontrado'
+        )
+    return cliente
+
+
 @router.post('/', response_model=ClienteDB, status_code=HTTPStatus.CREATED)
 def create_cliente(
     novo_cliente: ClienteCreateSchema, session: Session = Depends(get_session)

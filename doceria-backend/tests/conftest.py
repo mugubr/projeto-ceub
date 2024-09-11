@@ -104,7 +104,6 @@ def produto(session: Session):
     produto = Produto(
         nome='Produto Teste',
         preco=10.0,
-        tempo_producao=1,
         vegano=False,
         gluten=True,
         lactose=False,

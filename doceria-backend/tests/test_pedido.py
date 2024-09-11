@@ -47,6 +47,7 @@ def test_read_pedidos(client, pedido, token_admin):
                 'id': pedido.id,
                 'cliente_id': pedido.cliente_id,
                 'data_entrega': pedido.data_entrega.isoformat(),
+                'criado_em': pedido.criado_em.isoformat(),
                 'ocasiao': pedido.ocasiao,
                 'bairro': pedido.bairro,
                 'logradouro': pedido.logradouro,
@@ -55,6 +56,7 @@ def test_read_pedidos(client, pedido, token_admin):
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
+                'nome': 'Cliente Teste',
                 'descricao': '25X Produto Teste',
             }
         ]
@@ -73,6 +75,7 @@ def test_read_pedidos_by_cliente(client, cliente, pedido, token):
             {
                 'id': pedido.id,
                 'cliente_id': cliente.id,
+                'criado_em': pedido.criado_em.isoformat(),
                 'data_entrega': pedido.data_entrega.isoformat(),
                 'ocasiao': pedido.ocasiao,
                 'bairro': pedido.bairro,
@@ -82,6 +85,7 @@ def test_read_pedidos_by_cliente(client, cliente, pedido, token):
                 'valor': 250.0,
                 'status': 'Em andamento',
                 'celular': '11999999999',
+                'nome': 'Cliente Teste',
                 'descricao': '25X Produto Teste',
             }
         ]
@@ -117,8 +121,8 @@ def test_read_pedidos_mes(client, pedido, produto, token_admin):
 
     dia_criado = pedido.criado_em.day
     assert str(dia_criado) in data['pedidos']
-    assert len(data['pedidos'][str(dia_criado)]) == 1
 
+    assert data['pedidos'][str(dia_criado)][0]['status'] == 'Pedido'
     assert data['pedidos'][str(dia_criado)][0]['ocasiao'] == pedido.ocasiao
     assert data['pedidos'][str(dia_criado)][0]['bairro'] == pedido.bairro
     assert data['pedidos'][str(dia_criado)][0]['logradouro'] == (
@@ -131,10 +135,40 @@ def test_read_pedidos_mes(client, pedido, produto, token_admin):
         pedido.ponto_referencia
     )
     assert data['pedidos'][str(dia_criado)][0]['valor'] == (produto.preco * 25)
-    assert data['pedidos'][str(dia_criado)][0]['status'] == 'Em andamento'
     assert data['pedidos'][str(dia_criado)][0]['descricao'] == (
         f'25X {produto.nome}'
     )
+
+    if pedido.data_entrega:
+        dias_em_andamento = 7
+        for i in range(dias_em_andamento, 0, -1):
+            data_producao = pedido.data_entrega - timedelta(days=i)
+            if data_producao.month == mes_atual and data_producao.year == (
+                ano_atual
+            ):
+                dia_producao = data_producao.day
+                assert str(dia_producao) in data['pedidos']
+
+                encontrou = False
+                for pedido_data in data['pedidos'][str(dia_producao)]:
+                    if pedido_data['status'] == 'Em andamento':
+                        encontrou = True
+                        assert pedido_data['valor'] == (produto.preco * 25)
+                        assert pedido_data['descricao'] == (
+                            f'25X {produto.nome}'
+                        )
+                assert encontrou
+
+        dia_entrega = pedido.data_entrega.day
+        assert str(dia_entrega) in data['pedidos']
+
+        encontrou_entregue = False
+        for pedido_data in data['pedidos'][str(dia_entrega)]:
+            if pedido_data['status'] == 'Entregue':
+                encontrou_entregue = True
+                assert pedido_data['valor'] == (produto.preco * 25)
+                assert pedido_data['descricao'] == f'25X {produto.nome}'
+        assert encontrou_entregue
 
 
 def test_read_pedidos_by_mes_should_return_404(client, token_admin):
@@ -169,6 +203,7 @@ def test_read_pedido(client, pedido, token_admin):
         'valor': 250.0,
         'status': 'Em andamento',
         'celular': '11999999999',
+        'nome': 'Cliente Teste',
         'descricao': '25X Produto Teste',
     }
 

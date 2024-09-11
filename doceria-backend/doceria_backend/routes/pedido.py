@@ -12,6 +12,7 @@ from doceria_backend.schemas.pedido import (
     PedidoDB,
     PedidoLista,
     PedidoPorMesResponseSchema,
+    PedidoResponseDataSchema,
     PedidoResponseSchema,
     PedidoSchema,
 )
@@ -25,7 +26,7 @@ def read_pedidos(
     limit: int = 10,
     offset: int = 0,
     session: Session = Depends(get_session),
-    current_user=Depends(get_admin),
+    # current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(select(Pedido).limit(limit).offset(offset)).all()
 
@@ -50,11 +51,14 @@ def read_pedidos(
             status = 'Entregue'
 
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente.celular:
             celular = cliente.celular
+        if cliente.nome:
+            nome = cliente.nome
 
         descricao = ''
         for pedido_produto in pedido_produtos:
@@ -65,10 +69,10 @@ def read_pedidos(
                 produto.nome
             }, '
 
-        pedido_resposta = PedidoResponseSchema(
+        pedido_resposta = PedidoResponseDataSchema(
             id=pedido.id,
             cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
+            criado_em=pedido.criado_em.isoformat(),
             data_entrega=pedido.data_entrega,
             ocasiao=pedido.ocasiao,
             bairro=pedido.bairro,
@@ -78,6 +82,7 @@ def read_pedidos(
             valor=valor_total,
             status=status,
             celular=celular,
+            nome=nome,
             descricao=descricao.rstrip(', '),
         )
         resposta.append(pedido_resposta)
@@ -89,9 +94,9 @@ def read_pedidos(
 def read_pedidos_by_cliente(
     cliente_id: int,
     session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    # current_user=Depends(get_current_user),
 ):
-    cliente_id = current_user.cliente_id
+    # cliente_id = current_user.cliente_id
     pedidos = session.scalars(
         select(Pedido).where(Pedido.cliente_id == cliente_id)
     ).all()
@@ -117,11 +122,14 @@ def read_pedidos_by_cliente(
             status = 'Entregue'
 
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente.celular:
             celular = cliente.celular
+        if cliente.nome:
+            nome = cliente.nome
 
         descricao = ''
         for pedido_produto in pedido_produtos:
@@ -132,10 +140,10 @@ def read_pedidos_by_cliente(
                 produto.nome
             }, '
 
-        pedido_resposta = PedidoResponseSchema(
+        pedido_resposta = PedidoResponseDataSchema(
             id=pedido.id,
             cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
+            criado_em=pedido.criado_em.isoformat(),
             data_entrega=pedido.data_entrega,
             ocasiao=pedido.ocasiao,
             bairro=pedido.bairro,
@@ -145,6 +153,7 @@ def read_pedidos_by_cliente(
             valor=valor_total,
             status=status,
             celular=celular,
+            nome=nome,
             descricao=descricao.rstrip(', '),
         )
         resposta.append(pedido_resposta)
@@ -157,7 +166,7 @@ def read_pedidos_by_mes(
     ano: int,
     mes: int,
     session: Session = Depends(get_session),
-    current_user=Depends(get_admin),
+    # current_user=Depends(get_admin),
 ):
     pedidos = session.scalars(
         select(Pedido)
@@ -187,38 +196,50 @@ def read_pedidos_by_mes(
             valor_total += produto.preco * pedido_produto.quantidade
             descricao += f'{int(pedido_produto.quantidade)}X {produto.nome}, '
 
-        status = 'Em andamento'
-        hoje = datetime.now().date()
-        if pedido.data_entrega and pedido.data_entrega < hoje:
-            status = 'Entregue'
-
         celular = ''
+        nome = ''
         cliente = session.scalar(
             select(Cliente).where(Cliente.id == pedido.cliente_id)
         )
         if cliente and cliente.celular:
             celular = cliente.celular
+        if cliente and cliente.nome:
+            nome = cliente.nome
 
-        pedido_resposta = PedidoResponseSchema(
-            id=pedido.id,
-            cliente_id=pedido.cliente_id,
-            criado_em=pedido.criado_em,
-            data_entrega=pedido.data_entrega,
-            ocasiao=pedido.ocasiao,
-            bairro=pedido.bairro,
-            logradouro=pedido.logradouro,
-            numero_complemento=pedido.numero_complemento,
-            ponto_referencia=pedido.ponto_referencia,
-            valor=valor_total,
-            status=status,
-            celular=celular,
-            descricao=descricao.rstrip(', '),
-        )
+        def adicionar_pedido(dia, status):
+            pedido_resposta = PedidoResponseSchema(
+                id=pedido.id,
+                cliente_id=pedido.cliente_id,
+                criado_em=pedido.criado_em,
+                data_entrega=pedido.data_entrega,
+                ocasiao=pedido.ocasiao,
+                bairro=pedido.bairro,
+                logradouro=pedido.logradouro,
+                numero_complemento=pedido.numero_complemento,
+                ponto_referencia=pedido.ponto_referencia,
+                valor=valor_total,
+                status=status,
+                celular=celular,
+                nome=nome,
+                descricao=descricao.rstrip(', '),
+            )
+            if dia not in pedidos_agrupados:
+                pedidos_agrupados[dia] = []
+            pedidos_agrupados[dia].append(pedido_resposta)
 
-        dia = pedido.criado_em.day
-        if dia not in pedidos_agrupados:
-            pedidos_agrupados[dia] = []
-        pedidos_agrupados[dia].append(pedido_resposta)
+        adicionar_pedido(pedido.criado_em.day, 'Pedido')
+
+        if pedido.data_entrega:
+            dias_em_andamento = 7
+            for i in range(dias_em_andamento, 0, -1):
+                data_producao = pedido.data_entrega - timedelta(days=i)
+                if data_producao.month == mes and data_producao.year == ano:
+                    adicionar_pedido(data_producao.day, 'Em andamento')
+
+            if (pedido.data_entrega.month == mes) and (
+                pedido.data_entrega.year == ano
+            ):
+                adicionar_pedido(pedido.data_entrega.day, 'Entregue')
 
     return {'ano': ano, 'mes': mes, 'pedidos': pedidos_agrupados}
 
@@ -253,11 +274,14 @@ def read_pedido(
         status = 'Entregue'
 
     celular = ''
+    nome = ''
     cliente = session.scalar(
         select(Cliente).where(Cliente.id == pedido.cliente_id)
     )
     if cliente.celular:
         celular = cliente.celular
+    if cliente.nome:
+        nome = cliente.nome
 
     descricao = ''
     for pedido_produto in pedido_produtos:
@@ -279,6 +303,7 @@ def read_pedido(
         valor=valor_total,
         status=status,
         celular=celular,
+        nome=nome,
         descricao=descricao.rstrip(', '),
     )
     return pedido_resposta
@@ -292,12 +317,12 @@ def read_pedido(
 def create_pedido(
     novo_pedido: PedidoCreateSchema,
     session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    # current_user=Depends(get_current_user),
 ):
-    if current_user.cliente_id != novo_pedido.cliente_id:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
-        )
+    # if current_user.cliente_id != novo_pedido.cliente_id:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
+    #     )
     hoje = datetime.now().date()
     uma_semana = hoje + timedelta(days=3)
 
@@ -325,10 +350,6 @@ def create_pedido(
     session.commit()
     session.refresh(novo_pedido_db)
 
-    pedido_db = session.scalar(
-        select(Pedido).where((Pedido.cliente_id == novo_pedido.cliente_id))
-    )
-
     for produto in novo_pedido.produtos:
         if produto.quantidade < pedido_minimo_por_produto:
             raise HTTPException(
@@ -337,7 +358,7 @@ def create_pedido(
             )
 
         novo_pedido_produto = PedidoProduto(
-            pedido_id=pedido_db.id,
+            pedido_id=novo_pedido_db.id,
             produto_id=produto.produto_id,
             quantidade=produto.quantidade,
         )
