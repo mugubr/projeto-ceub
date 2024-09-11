@@ -93,9 +93,9 @@ def read_pedidos(
 def read_pedidos_by_cliente(
     cliente_id: int,
     session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    # current_user=Depends(get_current_user),
 ):
-    cliente_id = current_user.cliente_id
+    # cliente_id = current_user.cliente_id
     pedidos = session.scalars(
         select(Pedido).where(Pedido.cliente_id == cliente_id)
     ).all()
@@ -316,12 +316,12 @@ def read_pedido(
 def create_pedido(
     novo_pedido: PedidoCreateSchema,
     session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    # current_user=Depends(get_current_user),
 ):
-    if current_user.cliente_id != novo_pedido.cliente_id:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
-        )
+    # if current_user.cliente_id != novo_pedido.cliente_id:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.FORBIDDEN, detail='Acesso negado'
+    #     )
     hoje = datetime.now().date()
     uma_semana = hoje + timedelta(days=3)
 

@@ -1,16 +1,16 @@
 import Header from "./Header";
 import Content from "./Content";
-import Home from "./Home";
+import RealizarPedido from "./RealizarPedido";
 import Sidebar from "./Sidebar";
 
-export default function HomePage() {
+export default function RealizarPedidoPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1">
-        <Header texto={"Bem vindo(a) de volta!"} />
+        <Header texto={"Realizar Pedido"} />
         <Content>
-          <Home />
+          <RealizarPedido />
         </Content>
       </div>
     </div>

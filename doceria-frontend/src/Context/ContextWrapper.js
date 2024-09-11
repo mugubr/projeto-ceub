@@ -7,8 +7,22 @@ export default function ContextWrapper(props) {
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(null);
   const [daySelected, setDaySelected] = useState(dayjs());
   const [showPedidoModal, setShowPedidoModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [showRealizarPedidoModal, setShowRealizarPedidoModal] = useState(false);
+  const [selectedPedido, setSelectedPedido] = useState(null);
+  const [currentUser, setCurrentUser] = useState();
+  const [currentCliente, setCurrentCliente] = useState();
+  const [botaoAtivo, setBotaoAtivo] = useState(false);
+  const cliente_id = localStorage.getItem("cliente_id");
+  const [carrinho, setCarrinho] = useState({
+    cliente_id: cliente_id,
+    data_entrega: "",
+    ocasiao: "",
+    bairro: "",
+    logradouro: "",
+    numero_complemento: "",
+    ponto_referencia: "",
+    produtos: [],
+  });
 
   useEffect(() => {
     if (smallCalendarMonth !== null) {
@@ -18,7 +32,7 @@ export default function ContextWrapper(props) {
 
   useEffect(() => {
     if (!showPedidoModal) {
-      setSelectedEvent(null);
+      setSelectedPedido(null);
     }
   }, [showPedidoModal]);
 
@@ -33,10 +47,18 @@ export default function ContextWrapper(props) {
         setDaySelected,
         showPedidoModal,
         setShowPedidoModal,
-        selectedEvent,
-        setSelectedEvent,
+        selectedPedido,
+        setSelectedPedido,
         currentUser,
         setCurrentUser,
+        showRealizarPedidoModal,
+        setShowRealizarPedidoModal,
+        botaoAtivo,
+        setBotaoAtivo,
+        currentCliente,
+        setCurrentCliente,
+        carrinho,
+        setCarrinho,
       }}
     >
       {props.children}

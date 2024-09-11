@@ -22,7 +22,7 @@ def read_produtos(
     limit: int = 10,
     offset: int = 0,
     session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    # current_user=Depends(get_current_user),
 ):
     produtos = session.scalars(select(Produto).limit(limit).offset(offset))
     return {'produtos': produtos}

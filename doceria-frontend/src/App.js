@@ -10,6 +10,7 @@ import GlobalContext from "./Context/GlobalContext.js";
 import RegistroPage from "./Components/RegistroPage.js";
 import CalendarioPage from "./Components/CalendarioPage";
 import HomePage from "./Components/HomePage.js";
+import RealizarPedidoPage from "./Components/RealizarPedidoPage.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -17,15 +18,6 @@ const ProtectedRoute = ({ element, allowedUsers }) => {
   const { currentUser } = useContext(GlobalContext);
 
   if (!currentUser || !allowedUsers.includes(currentUser.username)) {
-    return <Navigate to="/" replace />;
-  }
-
-  return element;
-};
-
-const PrivateRoute = ({ element }) => {
-  const { currentUser } = useContext(GlobalContext);
-  if (!currentUser) {
     return <Navigate to="/" replace />;
   }
 
@@ -48,7 +40,8 @@ function App() {
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/home" element={<PrivateRoute element={<HomePage />} />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/realizar-pedido" element={<RealizarPedidoPage />} />
       </Routes>
       <ToastContainer />
     </Router>

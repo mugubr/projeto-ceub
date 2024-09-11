@@ -44,13 +44,11 @@ export default function LoginPage() {
       const user = {
         username: decodedToken.sub,
       };
-
       setCurrentUser(user);
-      if (user.username === "katherine.corrales") {
-        navigate("/calendario");
-      } else {
-        navigate("/home");
-      }
+      localStorage.setItem("user", user.username);
+      navigate(
+        user.username === "katherine.corrales" ? "/calendario" : "/home",
+      );
     } catch (error) {
       console.error("Erro ao enviar dados", error);
     }

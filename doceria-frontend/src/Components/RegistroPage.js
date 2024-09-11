@@ -4,7 +4,6 @@ import logo from "../assets/logo.png";
 import InputMask from "react-input-mask";
 import backgroundImage from "../assets/login.png";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function RegistroPage() {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ export default function RegistroPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error(errorData.message || "Erro ao cadastrar");
+        toast.error(errorData.detail || "Erro ao cadastrar");
         throw new Error("Erro ao cadastrar");
       }
 

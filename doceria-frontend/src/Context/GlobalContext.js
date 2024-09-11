@@ -9,10 +9,16 @@ const GlobalContext = React.createContext({
   setDaySelected: (day) => {},
   showPedidoModal: false,
   setShowPedidoModal: () => {},
-  selectedEvent: null,
-  setSelectedEvent: () => {},
+  showRealizarPedidoModal: false,
+  setShowRealizarPedidoModal: () => {},
+  selectedPedido: null,
+  setSelectedPedido: () => {},
   currentUser: null,
   setCurrentUser: (user) => {},
+  currentCliente: null,
+  setCurrentCliente: () => {},
+  botaoAtivo: false,
+  setBotaoAtivo: () => {},
 });
 
 export default GlobalContext;
