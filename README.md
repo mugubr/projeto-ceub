@@ -35,7 +35,6 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
 ## Sobre o projeto
 
 ![image](https://github.com/user-attachments/assets/ba4503d3-4055-4ffd-a080-1f5115339158)
@@ -48,8 +47,6 @@ A Katherine Corrales - Doceria é uma empresa especializada na produção e come
 
 
 ### Tecnologias utilizadas
-
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
 
 * <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="50" height="50" alt="Javascript"/>
 * <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/npm/npm-original-wordmark.svg" width="50" height="50" alt="npm"/>        
