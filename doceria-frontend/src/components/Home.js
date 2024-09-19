@@ -53,12 +53,11 @@ export default function Home() {
                 </span>
               </div>
               <NavLink
-              to="/realizar-pedido"
-              className="text-gray-700 font-semibold text-center"
-            >
-              Realizar Pedido
-            </NavLink>
-    
+                to="/realizar-pedido"
+                className="text-gray-700 font-semibold text-center"
+              >
+                Realizar Pedido
+              </NavLink>
             </div>
 
             <div className="flex flex-col items-center bg-white shadow-md rounded-md p-4">
@@ -68,11 +67,11 @@ export default function Home() {
                 </span>
               </div>
               <NavLink
-              to="/meus-pedidos"
-              className="text-gray-700 font-semibold text-center"
-            >
-              Meus Pedidos
-            </NavLink>
+                to="/meus-pedidos"
+                className="text-gray-700 font-semibold text-center"
+              >
+                Meus Pedidos
+              </NavLink>
             </div>
 
             <div className="flex flex-col items-center bg-white shadow-md rounded-md p-4">
