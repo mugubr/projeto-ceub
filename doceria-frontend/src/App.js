@@ -5,13 +5,13 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import LoginPage from "./Components/LoginPage.js";
-import GlobalContext from "./Context/GlobalContext.js";
-import RegistroPage from "./Components/RegistroPage.js";
-import CalendarioPage from "./Components/CalendarioPage";
-import HomePage from "./Components/HomePage.js";
-import RealizarPedidoPage from "./Components/RealizarPedidoPage.js";
-import MeusPedidosPage from "./Components/MeusPedidosPage.js";
+import LoginPage from "./components/LoginPage.js";
+import GlobalContext from "./contexts/GlobalContext.js";
+import RegistroPage from "./components/RegistroPage.js";
+import CalendarioPage from "./components/CalendarioPage";
+import HomePage from "./components/HomePage.js";
+import RealizarPedidoPage from "./components/RealizarPedidoPage.js";
+import MeusPedidosPage from "./components/MeusPedidosPage.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
